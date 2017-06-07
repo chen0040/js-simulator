@@ -53,18 +53,24 @@
                   };
 
                   var scheduler = new jssim.Scheduler();
-                  var grid = new jssim.Grid(64, 64);
+                  var grid = new jssim.Grid(128, 128);
 
                   scheduler.reset();
                   grid.reset();
+                  grid.cellWidth = 5;
+                  grid.cellHeight = 5;
+                  grid.showTrails = true;
 
-                  grid.setCell(1, 0, 1);
-                  grid.setCell(2, 0, 1);
-                  grid.setCell(0, 1, 1);
-                  grid.setCell(1, 1, 1);
-                  grid.setCell(1, 2, 1);
-                  grid.setCell(2, 2, 1);
-                  grid.setCell(2, 3, 1);
+                  for(var i = 0; i < 16; ++i){
+                      for(var j=0; j < 16; ++j) {
+                          var x = Math.floor(Math.random() * 16);
+                          var y = Math.floor(Math.random() * 16);
+                          grid.setCell(x, y, 1);
+                          var x = Math.floor(Math.random() * 16);
+                          var y = Math.floor(Math.random() * 16);
+                          grid.setCell(x, y, 1);
+                      }
+                  }
 
                   scheduler.scheduleRepeatingIn(new CellularAgent(grid), 1);
 

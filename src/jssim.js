@@ -312,19 +312,27 @@ var jssim = jssim || {};
         this.width = width;
         this.height = height;
         this.cells = [];
+        this.trails = [];
         for(var i = 0; i < width; ++i) {
             this.cells.push([]);
+            this.trails.push([]);
             for(var j=0; j < height; ++j) {
                 this.cells[i].push(0);
+                this.trails[i].push(0);
             }
         }
         this.color = '#ff0000';
+        this.trailColor = '#55aa55';
         this.cellWidth = 10;
         this.cellHeight = 10;
+        this.showTrails = false;
     };
     
     Grid.prototype.setCell = function(x, y, value) {
         this.cells[x][y] = value;
+        if(value > 0) {
+            this.trails[x][y] = 1;
+        }
     };
     
     
@@ -363,6 +371,10 @@ var jssim = jssim || {};
         for(var i=0; i < this.width; ++i){
             for(var j=0; j < this.height; ++j) {
                 if(this.cells[i][j] == 1) {
+                    context.fillStyle=this.color;
+                    context.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth, this.cellHeight);
+                } else if(this.showTrails && this.trails[i][j] == 1) {
+                    context.fillStyle=this.trailColor;
                     context.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth, this.cellHeight);
                 }
             }
