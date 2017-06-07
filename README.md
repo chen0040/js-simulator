@@ -3,8 +3,6 @@ Package provides the implementation of discrete-event simulator and agent-based 
 
 [![Build Status](https://travis-ci.org/chen0040/js-simulator.svg?branch=master)](https://travis-ci.org/chen0040/js-simulator) [![Coverage Status](https://coveralls.io/repos/github/chen0040/js-simulator/badge.svg?branch=master)](https://coveralls.io/github/chen0040/js-simulator?branch=master) 
 
-# Features
-
 
 # Install
 
@@ -15,6 +13,56 @@ npm install js-simulator
 ```
 
 # Usage
+
+The discrete-event simulator is managed via the Scheduler class, which can be created as shown below:
+
+```javascript
+jssim = require('js-simulator);
+var scheduler = new jssim.Scheduler();
+```
+
+The scheduler schedules and fires event based on their time and rank spec.
+
+The current scheduler can be obtain by calling (this is useful if we want to know the current time inside the scheduler):
+
+```javascript
+var current_scheduler_time = scheduler.current_time;
+```
+
+To schedule the an event to fire at a particular time:
+
+```javascript
+var rank = 1; // lowest rank being 1, the higher the rank, the higher the priority assigned and the higher-rank event will be fired first for all events occurring at the same time interval
+var evt = new jssim.SimEvent(rank);
+evt.id = 20; 
+evt.update = function(deltaTime) {
+    console.log('event [' + this.id + '] with rank ' + this.rank + ' is fired at time ' + this.time);
+};
+
+var time_to_fire = 10; // fire this event at time = 10
+scheduler.schedule(evt, time_to_fire);
+```
+
+An event can also be sheduled to fire at a later time from the current time (e.g., such an event can be fired within another event):
+
+```javascript
+var delta_time_later = 10; // the event will be fired 10 time units from now, where now refers to the current scheduler time
+scheduler.scheduleOnceIn(evt, delta_time_later);
+```
+
+An event can also be fired repeatedly at a fixed interval:
+
+```javascript
+var interval = 2; // interval between consecutive firing of the event
+var start_time = 12; // time to fire the event for the first time
+scheduler.scheduleRepeatingAt(evt, start_time, interval);
+```
+
+If the start_time at from the start of the simulation, then the above call can also be replaced by:
+
+```javascript
+scheduler.scheduleRepatingIn(evt, interval);
+```
 
 
 ### Flocking behavior Demo
