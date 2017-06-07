@@ -64,6 +64,22 @@ If the start_time at from the start of the simulation, then the above call can a
 scheduler.scheduleRepatingIn(evt, interval);
 ```
 
+The scheduler can be executed in the following loop:
+
+```javascript
+while(scheduler.hasEvents()) {
+    var evts_fired = scheduler.update();
+}
+```
+
+The above will run until no more events to fire in the scheduler, to stop the scheduler at a particular instead, use the following loop:
+
+```javascript
+while(scheduler.current_time < 20) { // stop the scheduler when current scheduler time is 20
+    scheduler.update();
+}
+```
+
 
 ### Flocking behavior Demo
 
