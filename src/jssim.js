@@ -185,7 +185,7 @@ var jssim = jssim || {};
         return !this.pq.isEmpty();  
     };
     
-    // Method that schedules an event to fire once at delta time later (than the current time mTime) 
+    // Method that schedules an event to fire once at delta time later (than the current time) 
     Scheduler.prototype.scheduleOnceIn = function(evt, deltaTime) {
         var start_time = this.current_time;
         if(this.current_time == null) {
@@ -195,17 +195,18 @@ var jssim = jssim || {};
         this.pq.enqueue(evt);
     };
     
-    // Method that schedules an event to fire at interval of delta time from now on
+    // Method that schedules an event to fire at interval of delta time from now on (other than the current time)
     Scheduler.prototype.scheduleRepeatingIn = function(evt, deltaTime) {
         var start_time = this.current_time;
         if(this.current_time == null) {
             start_time = 0;
         }
-        this.scheduleRepeatingAt(evt, start_time, deltaTime);
+        this.scheduleRepeatingAt(evt, start_time+deltaTime, deltaTime);
     };
     
+    // Method that schedules an event to fire at interval of delta time, with first event fired at the time specified
     Scheduler.prototype.scheduleRepeatingAt = function(evt, startTime, deltaTime) {
-        evt.time = startTime + deltaTime;
+        evt.time = startTime;
         evt.repeatInterval = deltaTime;
         this.pq.enqueue(evt);
     };

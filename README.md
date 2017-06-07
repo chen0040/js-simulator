@@ -16,7 +16,6 @@ npm install js-simulator
 
 # Usage
 
-Sample code is available at [playground](https://runkit.com/chen0040/js-simulator-playground)
 
 ### Using with nodejs
 
