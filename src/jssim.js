@@ -98,8 +98,8 @@ var jssim = jssim || {};
     
     jss.MinPQ = MinPQ;
     
-    var SimEvent = function (time, rank){
-        this.time = time;
+    var SimEvent = function (rank){
+        this.time = 0;
         if(rank){
             this.rank = rank;
         } else {
@@ -155,7 +155,11 @@ var jssim = jssim || {};
             } else {
                 deltaTime = current_time;
             }
-            events[i].update(deltaTime);
+            if(!events[i].update){
+                console.log('event does not define update(deltaTime) method!!!');
+            } else {
+                events[i].update(deltaTime);
+            }
         }
         
         if(events.length > 0){
@@ -163,16 +167,50 @@ var jssim = jssim || {};
             this.current_rank = current_rank;
         } 
         
+        for(var i = 0; i < events.length; ++i) {
+            if(events[i].repeatInterval) {
+                this.scheduleRepeatingIn(events[i], events[i].repeatInterval);
+            }
+        }
+        
         return events;
     };
     
-    Scheduler.prototype.schedule = function(evt) {
+    Scheduler.prototype.schedule = function(evt, time) {
+        evt.time = time;
         this.pq.enqueue(evt);  
     };
     
     Scheduler.prototype.hasEvents = function() {
         return !this.pq.isEmpty();  
     };
+    
+    // Method that schedules an event to fire once at delta time later (than the current time mTime) 
+    Scheduler.prototype.scheduleOnceIn = function(evt, deltaTime) {
+        var start_time = this.current_time;
+        if(this.current_time == null) {
+            start_time = 0;
+        }
+        evt.time = start_time + deltaTime;
+        this.pq.enqueue(evt);
+    };
+    
+    // Method that schedules an event to fire at interval of delta time from now on
+    Scheduler.prototype.scheduleRepeatingIn = function(evt, deltaTime) {
+        var start_time = this.current_time;
+        if(this.current_time == null) {
+            start_time = 0;
+        }
+        this.scheduleRepeatingAt(evt, start_time, deltaTime);
+    };
+    
+    Scheduler.prototype.scheduleRepeatingAt = function(evt, startTime, deltaTime) {
+        evt.time = startTime + deltaTime;
+        evt.repeatInterval = deltaTime;
+        this.pq.enqueue(evt);
+    };
+    
+    
     
     jss.SimEvent = SimEvent;
     jss.Scheduler = Scheduler;
