@@ -297,11 +297,8 @@ var jssim = jssim || {};
             if(agent.id){
                 context.font = "12 Arial";
                 context.fillText("" + agent.id,pos.x,pos.y);
-                context.rect(pos.x, pos.y, width, height);
-                context.stroke();
-            } else {
-                context.fillRect(pos.x,pos.y, width,height);
-            }
+            } 
+            context.fillRect(pos.x,pos.y, width,height);
         }  
     };
     
