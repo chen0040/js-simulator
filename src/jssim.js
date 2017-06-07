@@ -282,7 +282,25 @@ var jssim = jssim || {};
             if(agent.color) {
                 context.fillStyle = agent.color;
             }
-            context.fillRect(pos.x,pos.y, 20,20);
+            var width = 20;
+            var height = 20;
+            if(agent.size) {
+                width = agent.size.x;
+                height = agent.size.y;
+            }
+            if(!width) {
+                width = 20;
+            }
+            if(!height) {
+                height = 20;
+            }
+            if(agent.id){
+                context.font = "12 Arial";
+                context.fillText("" + agent.id,pos.x,pos.y);
+                context.drawRect(pos.x, pos.y, width, height);
+            } else {
+                context.fillRect(pos.x,pos.y, width,height);
+            }
         }  
     };
     

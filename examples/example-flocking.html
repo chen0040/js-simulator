@@ -21,6 +21,12 @@
                       this.velocity = new jssim.Vector2D(Math.random(), Math.random());
                       this.isPredator = isPredator;
                       this.border = 100;
+                      this.size = new jssim.Vector2D(10, 10);
+                      this.color = '#00aa00';
+                      if(isPredator){
+                          this.color = '#ff0000';
+                          this.size = new jssim.Vector2D(12, 12);
+                      }
                   };
 
                   Boid.prototype = Object.create(jssim.SimEvent);
@@ -127,7 +133,7 @@
                       
                       space.render(canvas);
                       console.log('current simulation time: ' + scheduler.current_time);
-                  }, 3000);
+                  }, 500);
             })();
         </script>
     </body>

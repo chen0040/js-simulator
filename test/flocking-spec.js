@@ -82,12 +82,7 @@ describe('Flocking', function(){
           
         
           
-        // check boundary
-        var val = this.boundary - this.border;
-        if (pos.x < this.border) this.velocity.x += this.border - pos.x;
-        if (pos.y < this.border) this.velocity.y += this.border - pos.y;
-        if (pos.x > val) this.velocity.x += val - pos.x;
-        if (pos.y > val) this.velocity.y += val - pos.y;
+       
           
         // check speed
         var speed = this.velocity.length();
@@ -97,6 +92,13 @@ describe('Flocking', function(){
           
         pos.x += this.velocity.x;
         pos.y += this.velocity.y;
+          
+         // check boundary
+        var val = this.boundary - this.border;
+        if (pos.x < this.border) this.x += this.border - pos.x;
+        if (pos.y < this.border) this.y += this.border - pos.y;
+        if (pos.x > val) this.x += val - pos.x;
+        if (pos.y > val) this.y += val - pos.y;
           
           
         console.log("boid [ " + this.id + "] is at (" + pos.x + ", " + pos.y + ") at time " + this.time);
