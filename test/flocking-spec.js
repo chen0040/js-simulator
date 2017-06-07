@@ -15,14 +15,21 @@ describe('Flocking', function(){
           this.separation_space = 30;
           this.velocity = new jssim.Vector2D(Math.random(), Math.random());
           this.isPredator = isPredator;
-          this.border = 100;
+          this.border = 30;
+          this.boundary = 640;
+          this.size = new jssim.Vector2D(8, 8);
+          this.color = '#00aa00';
+          if(isPredator){
+              this.color = '#ff0000';
+              this.size = new jssim.Vector2D(10, 10);
+          }
       };
-       
+
       Boid.prototype = Object.create(jssim.SimEvent);
       Boid.prototype.update = function(deltaTime) {
         var boids = this.space.findAllAgents();
         var pos = this.space.getLocation(this.id);
-        
+
         if(this.isPredator) {
             var prey = null;
             var min_distance = 10000000;
@@ -47,12 +54,13 @@ describe('Flocking', function(){
                     }
                 }
             }
-            
+
             if(prey != null) {
                 var prey_position = this.space.getLocation(prey.id);
                 this.velocity.x += prey_position.x - pos.x;
                 this.velocity.y += prey_position.y - pos.y;
-            }
+            } 
+
         } else {
             for (var boidId in boids)
             {
@@ -88,20 +96,22 @@ describe('Flocking', function(){
                 }
             }
         }
-          
-        
-          
-       
-          
+
+
+
+
         // check speed
         var speed = this.velocity.length();
         if(speed > this.speed) {
             this.velocity.resize(this.speed);
         }
-          
+
+
+
+
         pos.x += this.velocity.x;
         pos.y += this.velocity.y;
-          
+
         // check boundary
         var val = this.boundary - this.border;
         if (pos.x < this.border) pos.x = this.boundary - this.border;
@@ -109,17 +119,18 @@ describe('Flocking', function(){
         if (pos.x > val) pos.x = this.border;
         if (pos.y > val) pos.y = this.border;
 
+
         console.log("boid [ " + this.id + "] is at (" + pos.x + ", " + pos.y + ") at time " + this.time);
       };
-       
+
       var scheduler = new jssim.Scheduler();
       scheduler.reset();
-      
+
       var space = new jssim.Space2D();
       space.reset();
-       
-      for(var i = 0; i < 15; ++i) {
-          var is_predator = i > 12;
+
+      for(var i = 0; i < 30; ++i) {
+          var is_predator = i > 27;
           var boid = new Boid(i, 0, 0, space, is_predator);
           scheduler.scheduleRepeatingIn(boid, 1);
       }

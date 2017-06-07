@@ -18,6 +18,7 @@ npm install js-simulator
 The following HTML demo is available:
 
 * Flocking Boids [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-flocking.html)
+* Conway's Game of Life [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-game-of-life.html)
 
 
 # Usage
@@ -177,14 +178,6 @@ Boid.prototype.update = function(deltaTime) {
     }
 
 
-
-    // check boundary
-    var val = this.boundary - this.border;
-    if (pos.x < this.border) this.velocity.x += this.border - pos.x;
-    if (pos.y < this.border) this.velocity.y += this.border - pos.y;
-    if (pos.x > val) this.velocity.x += val - pos.x;
-    if (pos.y > val) this.velocity.y += val - pos.y;
-
     // check speed
     var speed = this.velocity.length();
     if(speed > this.speed) {
@@ -194,7 +187,13 @@ Boid.prototype.update = function(deltaTime) {
     pos.x += this.velocity.x;
     pos.y += this.velocity.y;
 
-
+    // check boundary
+    var val = this.boundary - this.border;
+    if (pos.x < this.border) pos.x = this.boundary - this.border;
+    if (pos.y < this.border) pos.y = this.boundary - this.border;
+    if (pos.x > val) pos.x = this.border;
+    if (pos.y > val) pos.y = this.border;
+        
     console.log("boid [ " + this.id + "] is at (" + pos.x + ", " + pos.y + ") at time " + this.time);
 };
 ```
@@ -218,5 +217,74 @@ while(scheduler.current_time < 20) {
 
 
 ```
+
+### Conway's Game of Life
+
+The sample code below shows how to create the game of life simulation:
+
+```javascript
+var CellularAgent = function(world) {
+  jssim.SimEvent.call(this);
+  this.world = world;
+}; 
+
+CellularAgent.prototype = Object.create(jssim.SimEvent.prototype);
+CellularAgent.prototype.update = function (deltaTime) {
+  var width = this.world.width;
+  var height = this.world.height;
+  var past_grid = this.world.makeCopy();
+  for(var i=0; i < width; ++i) {
+      for(var j = 0; j < height; ++j) {
+          var count = 0;
+          for(var dx = -1; dx < 2; ++dx) {
+              var x = i + dx;
+              if (x >= width) {
+                  x = 0;
+              }
+              if (x < 0) {
+                  x = width - 1;
+              }
+              for(var dy = -1; dy < 2; ++dy) {
+                var y = j + dy;
+                  if(y >= height) {
+                      y = 0;
+                  }
+                  if(y < 0) {
+                      y = height - 1;
+                  }
+                  count += past_grid.getCell(x, y);
+              }
+          }
+          if (count <= 2 || count >= 5) {
+              this.world.setCell(i, j, 0); // dead
+          }
+          if (count == 3) {
+              this.world.setCell(i, j, 1); // live
+          }
+      }
+  }
+};
+
+var scheduler = new jssim.Scheduler();
+var grid = new jssim.Grid(640, 640);
+
+scheduler.reset();
+grid.reset();
+
+grid.setCell(1, 0, 1);
+grid.setCell(2, 0, 1);
+grid.setCell(0, 1, 1);
+grid.setCell(1, 1, 1);
+grid.setCell(1, 2, 1);
+grid.setCell(2, 2, 1);
+grid.setCell(2, 3, 1);
+
+scheduler.scheduleRepeatingIn(new CellularAgent(grid), 1);
+
+while(scheduler.current_time < 20) { // this assumes that we want to terminate at time 20
+  scheduler.update();
+}
+```
+
 
 

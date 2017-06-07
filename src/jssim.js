@@ -307,6 +307,71 @@ var jssim = jssim || {};
     };
     
     jss.Space2D = Space2D;
+    
+    var Grid = function (width, height) {
+        this.width = width;
+        this.height = height;
+        this.cells = [];
+        for(var i = 0; i < width; ++i) {
+            this.cells.push([]);
+            for(var j=0; j < height; ++j) {
+                this.cells[i].push(0);
+            }
+        }
+        this.color = '#ff0000';
+        this.cellWidth = 10;
+        this.cellHeight = 10;
+    };
+    
+    Grid.prototype.setCell = function(x, y, value) {
+        this.cells[x][y] = value;
+    };
+    
+    
+    Grid.prototype.getCell = function(x, y) {
+        return this.cells[x][y];
+    };
+    
+    Grid.prototype.makeCopy = function () {
+        var grid = new Grid(this.width, this.height);  
+        for(var i=0; i < this.width; ++i) {
+            for(var j=0; j < this.height; ++j) {
+                if(this.cells[i][j] == 0) continue;
+                grid.setCell(i, j, 1);
+            }
+        }
+        return grid;
+    };
+    
+    Grid.prototype.reset = function () {
+        for(var i=0; i < this.width; ++i) {
+            for(var j=0; j < this.height; ++j) {
+                this.cells[i][j] = 0;
+            }
+        }  
+    };
+    
+    Grid.prototype.render = function (canvas) {
+        if(!canvas) {
+            return;
+        }
+        
+        var context = canvas.getContext("2d");
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        
+        context.fillStyle=this.color;
+        for(var i=0; i < this.width; ++i){
+            for(var j=0; j < this.height; ++j) {
+                if(this.cells[i][j] == 1) {
+                    context.fillRect(i, j, this.cellWidth, this.cellHeight);
+                }
+            }
+
+            
+        }  
+    };
+    
+    jss.Grid = Grid;
 
 })(jssim);
 
