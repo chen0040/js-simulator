@@ -106,6 +106,8 @@ describe('Flocking', function(){
       scheduler.reset();
       
       var space = new jssim.Space2D();
+      space.reset();
+       
       for(var i = 0; i < 15; ++i) {
           var is_predator = i > 12;
           var boid = new Boid(i, 0, 0, space, is_predator);
