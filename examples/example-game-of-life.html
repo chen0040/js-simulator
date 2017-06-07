@@ -67,11 +67,16 @@
                           var x = Math.floor(Math.random() * 16 + 64);
                           var y = Math.floor(Math.random() * 16 + 64);
                           grid.setCell(x, y, 1);
-                          var x = Math.floor(Math.random() * 16);
-                          var y = Math.floor(Math.random() * 16);
-                          grid.setCell(x, y, 1);
                       }
                   }
+                
+                grid.setCell(1, 0, 1);
+                grid.setCell(2, 0, 1);
+                grid.setCell(0, 1, 1);
+                grid.setCell(1, 1, 1);
+                grid.setCell(1, 2, 1);
+                grid.setCell(2, 2, 1);
+                grid.setCell(2, 3, 1);
 
                   scheduler.scheduleRepeatingIn(new CellularAgent(grid), 1);
 
@@ -83,7 +88,7 @@
                       
                       grid.render(canvas);
                       console.log('current simulation time: ' + scheduler.current_time);
-                  }, 100);
+                  }, 50);
             })();
         </script>
     </body>
