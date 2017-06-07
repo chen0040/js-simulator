@@ -17,7 +17,7 @@ npm install js-simulator
 The discrete-event simulator is managed via the Scheduler class, which can be created as shown below:
 
 ```javascript
-jssim = require('js-simulator);
+jssim = require('js-simulator');
 var scheduler = new jssim.Scheduler();
 ```
 
