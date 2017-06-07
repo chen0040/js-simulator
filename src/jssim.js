@@ -169,7 +169,7 @@ var jssim = jssim || {};
         
         for(var i = 0; i < events.length; ++i) {
             if(events[i].repeatInterval) {
-                this.scheduleRepeatingIn(events[i], events[i].repeatInterval);
+                this.scheduleRepeatingAt(events[i], this.current_time + events[i].repeatInterval, events[i].repeatInterval);
             }
         }
         
@@ -211,10 +211,62 @@ var jssim = jssim || {};
         this.pq.enqueue(evt);
     };
     
+    Scheduler.prototype.reset = function(){
+        this.current_rank = null;
+        this.current_time = null;
+        this.pq.clear();
+    };
     
     
     jss.SimEvent = SimEvent;
     jss.Scheduler = Scheduler;
+    
+    var Vector2D = function(x, y) {
+        this.x = x;
+        this.y = y;
+    };
+    
+    Vector2D.prototype.distance = function(that) {
+        var dx = this.x - that.x;
+        var dy = this.y - that.y;
+        return Math.sqrt(dx * dx + dy * dy);
+    };
+    
+    Vector2D.prototype.length = function() {
+        return Math.sqrt(this.x * this.x + this.y * this.y);  
+    };
+    
+    Vector2D.prototype.resize = function(len) {
+        var ratio = len / this.length();
+        this.x *= ratio;
+        this.y *= ratio;
+    };
+    
+    jss.Vector2D = Vector2D;
+    
+    var Space2D = function() {
+        this.locations = [];
+        this.agents = [];
+    };
+    
+    Space2D.prototype.getLocation = function(agentId) {
+        return this.locations[agentId];
+    };
+    
+    Space2D.prototype.getAgent = function(agentId) {
+        return this.agents[agentId];
+    };
+    
+    Space2D.prototype.updateAgent = function(agent, x, y) {
+        this.locations[agent.id] = new jss.Vector2D(x, y);
+        this.agents[agent.id] = agent;
+    };
+    
+    Space2D.prototype.findAllAgents = function() {
+        return this.agents;  
+    };
+    
+    jss.Space2D = Space2D;
 
 })(jssim);
 
