@@ -272,6 +272,10 @@ var jssim = jssim || {};
     };
     
     Space2D.prototype.render = function (canvas) {
+        if(!canvas) {
+            return;
+        }
+        
         var context = canvas.getContext("2d");
         context.clearRect(0, 0, canvas.width, canvas.height);
         

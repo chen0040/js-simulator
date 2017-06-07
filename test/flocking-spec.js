@@ -36,6 +36,15 @@ describe('Flocking', function(){
                         min_distance = distance;
                         prey = boid;
                     }
+                } else {
+                    var boid_pos = this.space.getLocation(boid.id);
+                    var distance = pos.distance(boid_pos);
+                    if (distance < this.separation_space)
+                    {
+                        // Separation
+                        this.velocity.x += pos.x - boid_pos.x;
+                        this.velocity.y += pos.y - boid_pos.y;
+                    }
                 }
             }
             
@@ -93,14 +102,13 @@ describe('Flocking', function(){
         pos.x += this.velocity.x;
         pos.y += this.velocity.y;
           
-         // check boundary
+        // check boundary
         var val = this.boundary - this.border;
-        if (pos.x < this.border) this.x += this.border - pos.x;
-        if (pos.y < this.border) this.y += this.border - pos.y;
-        if (pos.x > val) this.x += val - pos.x;
-        if (pos.y > val) this.y += val - pos.y;
-          
-          
+        if (pos.x < this.border) pos.x = this.boundary - this.border;
+        if (pos.y < this.border) pos.y = this.boundary - this.border;
+        if (pos.x > val) pos.x = this.border;
+        if (pos.y > val) pos.y = this.border;
+
         console.log("boid [ " + this.id + "] is at (" + pos.x + ", " + pos.y + ") at time " + this.time);
       };
        

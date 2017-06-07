@@ -13,7 +13,15 @@ Run the following npm command to install
 npm install js-simulator
 ```
 
+# Demo
+
+The following HTML demo is available:
+
+* Flocking Boids [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-flocking.html)
+
+
 # Usage
+
 
 The discrete-event simulator is managed via the Scheduler class, which can be created as shown below:
 
