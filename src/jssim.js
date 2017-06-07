@@ -363,7 +363,7 @@ var jssim = jssim || {};
         for(var i=0; i < this.width; ++i){
             for(var j=0; j < this.height; ++j) {
                 if(this.cells[i][j] == 1) {
-                    context.fillRect(i, j, this.cellWidth, this.cellHeight);
+                    context.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth, this.cellHeight);
                 }
             }
 
