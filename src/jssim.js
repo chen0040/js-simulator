@@ -372,10 +372,10 @@ var jssim = jssim || {};
             for(var j=0; j < this.height; ++j) {
                 if(this.cells[i][j] == 1) {
                     context.fillStyle=this.color;
-                    context.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth, this.cellHeight);
+                    context.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth-1, this.cellHeight-1);
                 } else if(this.showTrails && this.trails[i][j] == 1) {
                     context.fillStyle=this.trailColor;
-                    context.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth, this.cellHeight);
+                    context.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth-1, this.cellHeight-1);
                 }
             }
 
