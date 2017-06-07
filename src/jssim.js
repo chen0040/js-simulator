@@ -272,17 +272,17 @@ var jssim = jssim || {};
     };
     
     Space2D.prototype.render = function (canvas) {
-        var context = c.getContext("2d");
+        var context = canvas.getContext("2d");
         context.clearRect(0, 0, canvas.width, canvas.height);
         
         for(id in this.locations){
             var agent = this.agents[id];
             var pos = this.locations[id];
-            ctx.fillStyle="#000000";
+            context.fillStyle="#000000";
             if(agent.color) {
-                ctx.fillStyle = agent.color;
+                context.fillStyle = agent.color;
             }
-            ctx.fillRect(pos.x,pos.y, 20,20);
+            context.fillRect(pos.x,pos.y, 20,20);
         }  
     };
     
