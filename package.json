@@ -1,0 +1,55 @@
+{
+  "name": "js-simulator",
+  "version": "1.0.1",
+  "description": "Package implements discrete-event simulator and agent-based modelling and simulation",
+  "author": "Xianshun Chen",
+  "contributors": [
+    "Xianshun Chen <xs0040@gmail.com>"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha test",
+    "cover": "istanbul cover _mocha",
+    "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls"
+  },
+  "bin": {
+    "js-simulator": "./src/jssim.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chen0040/js-simulator.git"
+  },
+  "keywords": [
+    "discrete-event-simulation", 
+    "simulator", 
+    "simulation", 
+    "abms", 
+    "agent-based modelling and simulation", 
+    "intelligent agent", 
+    "agent-modelling", 
+    "flocking", 
+    "game of life", 
+    "simulation engine"
+  ],
+  "dependencies": {
+    
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "coveralls": "^2.13.1",
+    "grunt": "^1.0.1",
+    "grunt-contrib-uglify": "^3.0.0",
+    "grunt-eslint": "^19.0.0",
+    "grunt-mocha-test": "^0.13.2",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.4.1"
+  },
+  "bugs": {
+    "url": "https://github.com/chen0040/js-simulator/issues"
+  },
+  "homepage": "https://github.com/chen0040/js-simulator#readme"
+}
