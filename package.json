@@ -1,7 +1,7 @@
 {
   "name": "js-simulator",
-  "version": "1.0.1",
-  "description": "Package implements discrete-event simulator and agent-based modelling and simulation",
+  "version": "1.0.2",
+  "description": "General-purpose discrete-event simulator for agent-based modelling and simulation",
   "author": "Xianshun Chen",
   "contributors": [
     "Xianshun Chen <xs0040@gmail.com>"
@@ -24,10 +24,14 @@
     "url": "git+https://github.com/chen0040/js-simulator.git"
   },
   "keywords": [
-    "discrete-event-simulation", 
+    "discrete",
+    "event",
     "simulator", 
+    "discrete-event-simulation", 
     "simulation", 
     "abms", 
+    "agent",
+    "modelling and simulation",
     "agent-based modelling and simulation", 
     "intelligent agent", 
     "agent-modelling", 

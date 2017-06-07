@@ -1,5 +1,6 @@
 # js-simulator
-Package provides the implementation of discrete-event simulator and agent-based modelling and simulation.
+
+js-simulator is a general-purpose discrete-event simulator for agent-based modelling and simulation. It was written entirely in Javascript. Currently the demo code contains the flocking boid demo, more demo and HTML GUI supports will be added in the subsequent releases.
 
 [![Build Status](https://travis-ci.org/chen0040/js-simulator.svg?branch=master)](https://travis-ci.org/chen0040/js-simulator) [![Coverage Status](https://coveralls.io/repos/github/chen0040/js-simulator/badge.svg?branch=master)](https://coveralls.io/github/chen0040/js-simulator?branch=master) 
 
