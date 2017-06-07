@@ -8,6 +8,7 @@
         <canvas id="myCanvas" width="640" height="640" style="border:1px solid #000000;">
         </canvas>
         
+        
         <script>
             (function(){
                  var CellularAgent = function(world) {
@@ -64,19 +65,19 @@
 
                   for(var i = 0; i < 32; ++i){
                       for(var j=0; j < 32; ++j) {
-                          var x = Math.floor(Math.random() * 16 + 64);
-                          var y = Math.floor(Math.random() * 16 + 64);
+                          var x = Math.floor(Math.random() * 32 + 64);
+                          var y = Math.floor(Math.random() * 32 + 64);
                           grid.setCell(x, y, 1);
                       }
                   }
                 
-                grid.setCell(1, 0, 1);
-                grid.setCell(2, 0, 1);
-                grid.setCell(0, 1, 1);
-                grid.setCell(1, 1, 1);
-                grid.setCell(1, 2, 1);
-                grid.setCell(2, 2, 1);
-                grid.setCell(2, 3, 1);
+                  grid.setCell(1, 0, 1);
+                  grid.setCell(2, 0, 1);
+                  grid.setCell(0, 1, 1);
+                  grid.setCell(1, 1, 1);
+                  grid.setCell(1, 2, 1);
+                  grid.setCell(2, 2, 1);
+                  grid.setCell(2, 3, 1);
 
                   scheduler.scheduleRepeatingIn(new CellularAgent(grid), 1);
 
