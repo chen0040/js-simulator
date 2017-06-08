@@ -373,6 +373,7 @@ var jssim = jssim || {};
         for(var i=0; i < this.width; ++i) {
             for(var j=0; j < this.height; ++j) {
                 this.cells[i][j] = 0;
+                this.trails[i][j] = 0;
             }
         }  
     };

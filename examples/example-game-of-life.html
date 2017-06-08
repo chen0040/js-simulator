@@ -4,7 +4,8 @@
         <script src="https://rawgit.com/chen0040/js-simulator/master/src/jssim.js" type="text/javascript"></script>
     </head>
     <body>
-        <h2>Discrete-Event Simulator: Conway's Game of Life</h2>
+        <h2>Discrete-Event Simulator: Conway's Game of Life <input type="text" id="simTime" value="" /></h2>
+        <p>Game of life will restart randomly every 40 seconds :)</p>
         <canvas id="myCanvas" width="640" height="640" style="border:1px solid #000000;">
         </canvas>
         
@@ -56,40 +57,43 @@
                   var scheduler = new jssim.Scheduler();
                   var grid = new jssim.Grid(128, 128);
 
-                  scheduler.reset();
-                  grid.reset();
-                  grid.cellWidth = 5;
-                  grid.cellHeight = 5;
-                  grid.showTrails = true;
-                  grid.trailColor = '#55ff55';
+                  function init() {
+                      scheduler.reset();
+                      grid.reset();
+                      grid.cellWidth = 5;
+                      grid.cellHeight = 5;
+                      grid.showTrails = true;
+                      grid.trailColor = '#55ff55';
 
-                  for(var i = 0; i < 32; ++i){
-                      for(var j=0; j < 32; ++j) {
-                          var x = Math.floor(Math.random() * 32 + 64);
-                          var y = Math.floor(Math.random() * 32 + 64);
-                          grid.setCell(x, y, 1);
+                      for(var i = 0; i < 32; ++i){
+                          for(var j=0; j < 32; ++j) {
+                              var x = Math.floor(Math.random() * 32 + 64);
+                              var y = Math.floor(Math.random() * 32 + 64);
+                              grid.setCell(x, y, 1);
+                          }
                       }
+
+                      grid.setCell(1, 0, 1);
+                      grid.setCell(2, 0, 1);
+                      grid.setCell(0, 1, 1);
+                      grid.setCell(1, 1, 1);
+                      grid.setCell(1, 2, 1);
+                      grid.setCell(2, 2, 1);
+                      grid.setCell(2, 3, 1);
+
+                      scheduler.scheduleRepeatingIn(new CellularAgent(grid), 1);
                   }
-                
-                  grid.setCell(1, 0, 1);
-                  grid.setCell(2, 0, 1);
-                  grid.setCell(0, 1, 1);
-                  grid.setCell(1, 1, 1);
-                  grid.setCell(1, 2, 1);
-                  grid.setCell(2, 2, 1);
-                  grid.setCell(2, 3, 1);
 
-                  scheduler.scheduleRepeatingIn(new CellularAgent(grid), 1);
-
-
-                  
+                  init();
                   var canvas = document.getElementById("myCanvas");
                   setInterval(function(){ 
                       scheduler.update();
                       
                       grid.render(canvas);
                       console.log('current simulation time: ' + scheduler.current_time);
+                      document.getElementById("simTime").value = "Generation: " + scheduler.current_time;
                   }, 50);
+                  setInterval(init, 40000);
             })();
         </script>
     </body>
