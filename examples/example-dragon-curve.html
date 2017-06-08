@@ -75,30 +75,30 @@
                 };
                 
                 Pen.prototype.clearCanvas = function () {
-                    this.canvas.clearLines();
+                    this.canvas.clearLines();  
                 };
 
                 var Turtle = function(scheduler, pen) {
                     jssim.SimEvent.call(this);
                     this.scheduler = scheduler;
                     this.pen = pen;
-                    this.angle = 25;
+                    this.angle = 90;
                     this.stride = 1;
                 };
                 Turtle.prototype = Object.create(jssim.SimEvent.prototype);
                 Turtle.prototype.update = function(deltaTime){
-                    // (X → F[−X][X]F[−X]+FX), (F → FF)
-                    var rules = '';
                     this.pen.clearCanvas();
+                    // (X → X+YF+), (Y → −FX−Y)
+                    var rules = '';
 
                     while(this.pen.hasMoreCommands()){
                         var symbol = this.pen.popCommand();
-
                         var rule = '';
+
                         if(symbol == 'X') {
-                            rule = 'F[−X][X]F[−X]+FX';
-                        } else if(symbol == 'F'){
-                            rule = 'FF';
+                            rule = 'X+YF+';
+                        } else if(symbol == 'Y') {
+                            rule = '−FX−Y';
                         } else {
                             rule = symbol;
                         }
@@ -108,31 +108,30 @@
 
                     for(var i = 0; i < rules.length; ++i) {
                         var symbol = rules[i];
-                        if(symbol == 'F') {
-                          this.pen.drawForward(this.stride);
-                        } else if(symbol == '[') {
-                            this.pen.saveState();
-                        } else if(symbol == ']') {
-                            this.pen.loadState();
+                        if(symbol == 'F'){
+                            this.pen.drawForward(this.stride);
                         } else if(symbol == '-') {
                             this.pen.rotateLeft(this.angle);
                         } else if(symbol == '+') {
                             this.pen.rotateRight(this.angle);
-                        }
-                        pen.pushCommand(rules[i]);
+                        } 
+                        
+                        pen.pushCommand(symbol);
                     }
 
                     console.log('state at time ' + this.time + ': ' + rules);
                 };
 
                 var scheduler = new jssim.Scheduler();
-                var pen = new Pen(10, 0, 60);
+                var pen = new Pen(10, 0, 90);
                 var turtle = new Turtle(scheduler, pen);
+                turtle.stride = 10;
 
                 function reset() {
                     scheduler.reset(); 
                     pen.reset();
 
+                    pen.pushCommand('F');
                     pen.pushCommand('X');
                     scheduler.scheduleRepeatingIn(turtle, 1);
                 }
@@ -145,7 +144,7 @@
 
                 
                 setInterval(function(){ 
-                    if(scheduler.current_time == 6) {
+                    if(scheduler.current_time == 10) {
                         reset();
                     }
                     scheduler.update();

@@ -323,6 +323,10 @@ var jssim = jssim || {};
         this.lines.push(new jss.Line2D(x1, y1, x2, y2));  
     };
     
+    Space2D.prototype.clearLines = function () {
+        this.lines = [];  
+    };
+    
     Space2D.prototype.render = function (canvas) {
         if(!canvas) {
             return;
@@ -340,8 +344,8 @@ var jssim = jssim || {};
             var y1 = line.y1;
             var x2 = line.x2;
             var y2 = line.y2;
-            context.moveTo(x1 * this.cellWidth, y1 * this.cellHeight);
-            context.lineTo(x2 * this.cellWidth, y2 * this.cellHeight);
+            context.moveTo(x1 * this.cellWidth, canvas.height - y1 * this.cellHeight);
+            context.lineTo(x2 * this.cellWidth, canvas.height - y2 * this.cellHeight);
             context.stroke();
         }
         
