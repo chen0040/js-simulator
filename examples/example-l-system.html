@@ -1,0 +1,142 @@
+<html>
+    <head>
+        <title>Discrete-Event Simulator: Flocking</title>
+        <script src="../src/jssim.js" type="text/javascript"></script>
+    </head>
+    <body>
+        <h2>Discrete-Event Simulator: Flocking Boids <input type="text" id="simTime" value="" /></h2>
+        
+        <canvas id="myCanvas" width="640" height="640" style="border:1px solid #000000;">
+        </canvas>
+        
+        <script>
+            (function(){
+                var Pen = function(x, y, angle) {
+                    this.x = x;
+                    this.y = y;
+                    this.angle = angle;
+                    this.stack = new jssim.Stack();
+                    this.canvas = new jssim.Space2D();
+                    this.commands = new jssim.Queue();
+                };
+
+                Pen.prototype.reset = function () {
+                    this.canvas.reset();
+                    this.stack.clear();
+                    this.commands.clear();
+                };
+
+                Pen.prototype.saveState = function () {
+                    this.stack.push(new Pen(this.x, this.y, this.angle));
+                };
+
+                Pen.prototype.loadState = function () {
+                    var oldState = this.stack.pop();
+                    this.x = oldState.x;
+                    this.y = oldState.y;
+                    this.angle = oldState.angle;
+                };
+
+                Pen.prototype.rotateLeft = function (angle) {
+                    this.angle += angle;  
+                };
+
+                Pen.prototype.rotateRight = function (angle) {
+                    this.angle -= angle;  
+                };
+
+                Pen.prototype.pushCommand = function(symbol) {
+                    this.commands.enqueue(symbol);
+                };
+
+                Pen.prototype.popCommand = function(symbol) {
+                    return this.commands.dequeue();  
+                };
+
+                Pen.prototype.drawForward = function (stride) {
+                    var rad = this.angle * Math.PI / 180;
+                    var dx = Math.cos(rad) * stride;
+                    var dy = Math.sin(rad) * stride;
+                    var oldX = this.x;
+                    var oldY = this.y;
+                    this.x += dx;
+                    this.y += dy;
+                    this.canvas.drawLine(oldX, oldY, this.x, this.y);
+                };
+
+                Pen.prototype.hasMoreCommands = function () {
+                    return !this.commands.isEmpty();
+                };
+
+                var Turtle = function(scheduler, pen) {
+                    jssim.SimEvent.call(this);
+                    this.scheduler = scheduler;
+                    this.pen = pen;
+                    this.angle = 25;
+                    this.stride = 1;
+                };
+                Turtle.prototype = Object.create(jssim.SimEvent.prototype);
+                Turtle.prototype.update = function(deltaTime){
+                    // (X → F[−X][X]F[−X]+FX), (F → FF)
+                    var rules = '';
+
+                    while(this.pen.hasMoreCommands()){
+                        var symbol = this.pen.popCommand();
+
+                        if(symbol == 'X') {
+                            rule = 'F[−X][X]F[−X]+FX';
+                        } else if(symbol == 'F'){
+                            this.pen.drawForward(this.stride);
+                            rule = 'FF';
+                        } else if(symbol == '[') {
+                            this.pen.saveState();
+                        } else if(symbol == ']') {
+                            this.pen.loadState();
+                        } else if(symbol == '-') {
+                            this.pen.rotateLeft(this.angle);
+                        } else if(symbol == '+') {
+                            this.pen.rotateRight(this.angle);
+                        }
+
+                        rules += rule;
+                    }
+
+                    for(var i = 0; i < rules.length; ++i) {
+                        pen.pushCommand(rules[i]);
+                    }
+
+                    // console.log('state at time ' + this.time + ': ' + rules);
+                };
+
+                var scheduler = new jssim.Scheduler();
+                var pen = new Pen(10, 0, 60);
+                var turtle = new Turtle(scheduler, pen);
+
+                function reset() {
+                    scheduler.reset(); 
+                    pen.reset();
+
+                    pen.pushCommand('X');
+                    scheduler.scheduleRepeatingIn(turtle, 1);
+                }
+                
+                reset();
+                
+                var canvas = document.getElementById("myCanvas");
+                pen.canvas.drawLine(0, 0, 50, 50);
+                pen.canvas.render(canvas);
+
+                
+                setInterval(function(){ 
+                    if(scheduler.current_time == 6) {
+                        reset();
+                    }
+                    scheduler.update();
+                    pen.canvas.render(canvas);
+                    console.log('current simulation time: ' + scheduler.current_time);
+                    document.getElementById("simTime").value = "Simulation Time: " + scheduler.current_time;
+                }, 1000);
+            })();
+        </script>
+    </body>
+</html>

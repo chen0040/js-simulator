@@ -53,6 +53,7 @@ describe('L-System', function(){
             var oldY = this.y;
             this.x += dx;
             this.y += dy;
+            this.canvas.drawLine(oldX, oldY, this.x, this.y);
         };
        
         Pen.prototype.hasMoreCommands = function () {
