@@ -329,6 +329,20 @@ var jssim = jssim || {};
         var context = canvas.getContext("2d");
         context.clearRect(0, 0, canvas.width, canvas.height);
         
+                
+        for(var i=0; i < this.lines.length; ++i) {
+            var line = this.lines[i];
+            var x1 = line.x1;
+            var y1 = line.y1;
+            var x2 = line.x2;
+            var y2 = line.y2;
+            context.beginPath();
+            context.moveTo(x1 * this.cellWidth, canvas.height - y1 * this.cellHeight);
+            context.lineTo(x2 * this.cellWidth, canvas.height - y2 * this.cellHeight);
+            context.stroke();
+        }
+        
+        
         for(id in this.locations){
             var agent = this.agents[id];
             var pos = this.locations[id];
@@ -352,7 +366,7 @@ var jssim = jssim || {};
                 context.font = "12 Arial";
                 context.fillText("" + agent.id,pos.x,pos.y);
             } 
-            context.fillRect(pos.x,pos.y, width,height);
+            context.fillRect(pos.x, canvas.height - pos.y, width,height);
         }  
     };
     
@@ -388,6 +402,11 @@ var jssim = jssim || {};
         return item;
     };
     
+    Stack.prototype.clear = function () {
+        this.N = 0;
+        this.first = null;
+    };
+    
     Stack.prototype.size = function () {
         return this.N;
     };
@@ -397,6 +416,61 @@ var jssim = jssim || {};
     };
     
     jss.Stack = Stack;
+    
+    var QueueNode = function (value) {
+        this.value = value;
+        this.next = null;
+    };
+    
+    jss.QueueNode = QueueNode;
+    
+    var Queue = function () {
+        this.first = null;
+        this.last = null;
+        this.N = 0;
+    };
+    
+    Queue.prototype.enqueue = function (item) {
+        var oldLast = this.last;
+        this.last = new jss.QueueNode(item);
+        if(oldLast != null) {
+            oldLast.next = this.last;
+        }
+        if(this.first == null) {
+            this.first = this.last;
+        }
+        this.N++;
+    };
+    
+    Queue.prototype.dequeue = function () {
+        var oldFirst = this.first;
+        if(oldFirst == null) {
+            return null;
+        }
+        var item = oldFirst.value;
+        this.first = oldFirst.next;
+        if(this.first == null) {
+            this.last = null;
+        }
+        this.N--;
+        return item;
+    };
+    
+    Queue.prototype.clear = function () {
+        this.first = null;
+        this.last = null;
+        this.N = 0;
+    };
+    
+    Queue.prototype.isEmpty = function () {
+        return this.N == 0;
+    };
+    
+    Queue.prototype.size = function() {
+        return this.N;
+    };
+    
+    jss.Queue = Queue;
     
     var Grid = function (width, height) {
         this.width = width;
@@ -460,19 +534,7 @@ var jssim = jssim || {};
         
         context.fillStyle=this.color;
         
-        
-        for(var i=0; i < this.lines.length; ++i) {
-            var line = this.lines[i];
-            var x1 = line.x1;
-            var y1 = line.y1;
-            var x2 = line.x2;
-            var y2 = line.y2;
-            context.beginPath();
-            context.moveTo(x1 * this.cellWidth, y1 * this.cellHeight);
-            context.lineTo(x2 * this.cellWidth, y2 * this.cellHeight);
-            context.stroke();
-        }
-        
+
         for(var i=0; i < this.width; ++i){
             for(var j=0; j < this.height; ++j) {
                 if(this.cells[i][j] == 1) {
