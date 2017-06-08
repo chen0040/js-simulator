@@ -23,6 +23,7 @@ The following HTML demo is available:
 
 # Usage
 
+### Create and schedule discrete events or agents
 
 The discrete-event simulator is managed via the Scheduler class, which can be created as shown below:
 
@@ -31,13 +32,7 @@ jssim = require('js-simulator');
 var scheduler = new jssim.Scheduler();
 ```
 
-The scheduler schedules and fires event based on their time and rank spec.
-
-The current scheduler can be obtain by calling (this is useful if we want to know the current time inside the scheduler):
-
-```javascript
-var current_scheduler_time = scheduler.current_time;
-```
+The scheduler schedules and fires events based on their time and rank (i.e. the order of the event) spec. 
 
 To schedule the an event to fire at a particular time:
 
@@ -53,6 +48,8 @@ var time_to_fire = 10; // fire this event at time = 10
 scheduler.schedule(evt, time_to_fire);
 ```
 
+The main logic for an event is defined in its update(deltaTime) method, as shown in the code above. Events with higher ranks and earlier time_to_fire will always be executed first by the scheduler.
+
 An event can also be sheduled to fire at a later time from the current time (e.g., such an event can be fired within another event):
 
 ```javascript
@@ -60,19 +57,24 @@ var delta_time_later = 10; // the event will be fired 10 time units from now, wh
 scheduler.scheduleOnceIn(evt, delta_time_later);
 ```
 
-An event can also be fired repeatedly at a fixed interval:
+In terms of multi-agent system, an event can be thought of as an agent. Such an agent may need to execute repeatedly. In the js-simulator, this is achieved by firing an event repeatedly at a fixed interval:
 
 ```javascript
-var interval = 2; // interval between consecutive firing of the event
+var interval = 2; // time interval between consecutive firing of the event
 var start_time = 12; // time to fire the event for the first time
 scheduler.scheduleRepeatingAt(evt, start_time, interval);
 ```
 
-If the start_time at from the start of the simulation, then the above call can also be replaced by:
+If the start_time is at from the start of the simulation, then the above scheduling can also be replaced by:
 
 ```javascript
 scheduler.scheduleRepatingIn(evt, interval);
 ```
+
+### Execute the scheduler loop for the main discrete-event simulation
+
+After the events/agents are scheduled, they are not fired immediately but only fired when scheduler.update() method is called, each call to scheduler.update() to move the 
+time forward. At each time forwarded, events with higher rank will be executed (by calling their update(delaTime) method) first. Also events with the same rank will be shuffled before execution.
 
 The scheduler can be executed in the following loop:
 
@@ -90,6 +92,13 @@ while(scheduler.current_time < 20) { // stop the scheduler when current schedule
 }
 ```
 
+The current scheduler time can be obtained by calling (this is useful if we want to know the current time inside the scheduler):
+
+```javascript
+var current_scheduler_time = scheduler.current_time;
+```
+
+# Sample Codes
 
 ### Flocking behavior Demo
 
@@ -98,7 +107,7 @@ The source code below shows how to create a flocking of 15 boids (12 preys and 3
 Firstly we will declare a Boid class the inherits from the jsssim.SimEvent class, which defines the behavior of a single boid:
 
 ```javascript
-jssim = require('js-simulator');
+var jssim = require('js-simulator');
 
 
 var Boid = function(id, initial_x, initial_y, space, isPredator) {
@@ -223,6 +232,8 @@ while(scheduler.current_time < 20) {
 The sample code below shows how to create the game of life simulation:
 
 ```javascript
+var jssim = require('js-simulator');
+
 var CellularAgent = function(world) {
   jssim.SimEvent.call(this);
   this.world = world;
