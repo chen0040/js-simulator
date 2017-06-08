@@ -46,7 +46,7 @@ describe('Discrete Event Scheduler', function(){
        var prev_time = 0;
        var prev_rank = 5;
        while(scheduler.hasEvents()) {
-           var fired = scheduler.update();
+           var fired = scheduler.update_mini();
            expect(scheduler.current_time).not.to.below(prev_time);
            if(prev_time == scheduler.current_time) {
                expect(scheduler.current_rank).to.below(prev_rank);

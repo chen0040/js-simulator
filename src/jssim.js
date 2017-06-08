@@ -124,6 +124,24 @@ var jssim = jssim || {};
     };
     
     Scheduler.prototype.update = function () {
+        var current_rank = null;
+        var current_time = null;
+        
+        while(!this.pq.isEmpty()){
+            var evt = this.pq.min();
+            var time = evt.time;
+            var rank = evt.rank;
+            if(current_time == null) {
+                current_time = time;
+            } else if(current_time != time) {
+                break;
+            }
+            
+            this.update_mini();
+        }  
+    };
+    
+    Scheduler.prototype.update_mini = function () {
         var current_time = null;
         var current_rank = null;
         var events = [];
