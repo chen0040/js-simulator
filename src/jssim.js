@@ -255,9 +255,24 @@ var jssim = jssim || {};
     };
     
     Vector2D.prototype.resize = function (len) {
-        var ratio = len / this.length();
+        var current_len = this.length();
+        if(current_len == 0){
+            return;
+        }
+        var ratio = len / current_len;
+        
         this.x *= ratio;
         this.y *= ratio;
+    };
+    
+    Vector2D.prototype.addIn = function (f) {
+        this.x += f.x;
+        this.y += f.y;
+    };
+    
+    Vector2D.prototype.set = function(x, y) {
+        this.x = x;
+        this.y = y;
     };
     
     jss.Vector2D = Vector2D;
@@ -265,6 +280,8 @@ var jssim = jssim || {};
     var Space2D = function () {
         this.locations = [];
         this.agents = [];
+        this.width = 100;
+        this.height = 100;
     };
     
     Space2D.prototype.reset = function () {
@@ -403,6 +420,70 @@ var jssim = jssim || {};
     };
     
     jss.Grid = Grid;
+    
+    var Edge = function(v, w, info) {
+        this.v = v;
+        this.w = w;
+        this.info = info;
+    };
+    
+    Edge.prototype.other = function(x) {
+        return x == this.v ? this.w : this.v;
+    };
+    
+    Edge.prototype.either = function () {
+        return this.v;
+    };
+    
+    jss.Edge = Edge;
+    
+    var Network = function(V) {
+        this.V = V;
+        this.adjList = [];
+        for(var v=0; v < V; ++v) {
+            this.adjList.push([]);
+        }
+    };
+    
+    Network.prototype.adj = function(v) {
+        return this.adjList[v];  
+    };
+    
+    Network.prototype.reset = function() {
+        this.adjList = [];
+        for(var v=0; v < this.V; ++v) {
+            this.adjList.push([]);
+        }
+    };
+    
+    Network.prototype.addEdge = function(e) {
+        var v = e.either();
+        var w = e.other(v);
+        this.adjList[v].push(e);
+        this.adjList[w].push(e);
+    };
+    
+    Network.prototype.connected = function(v, w){
+        var edges1 = this.adjList[v];
+        for(var i=0; i < edges1.length; ++i){
+            var e = edges1[i];
+            if(e.other(v) == w){
+                return true;
+            }
+        }
+        var edges2 = this.adjList[w];
+        for(var i=0; i < edges2.length; ++i) {
+            var e = edges2[i];
+            if(e.other(w) == v){
+                return true;
+            }
+        }
+        return false;
+    };
+    
+    jss.Network = Network;
+    
+    
 
 })(jssim);
 

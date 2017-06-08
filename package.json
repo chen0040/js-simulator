@@ -27,6 +27,8 @@
     "discrete",
     "event",
     "simulator", 
+    "multiagent",
+    "multi-agent",
     "discrete-event-simulation", 
     "simulation", 
     "abms", 
