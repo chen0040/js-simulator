@@ -277,16 +277,27 @@ var jssim = jssim || {};
     
     jss.Vector2D = Vector2D;
     
+    var Line2D = function (x1, y1, x2, y2) {
+        this.x1 = x1;
+        this.y1 = y1;
+        this.x2 = x2;
+        this.y2 = y2;
+    };
+    
+    jss.Line2D = Line2D;
+    
     var Space2D = function () {
         this.locations = [];
         this.agents = [];
         this.width = 100;
         this.height = 100;
+        this.lines = [];
     };
     
     Space2D.prototype.reset = function () {
         this.locations = [];
         this.agents = [];
+        this.lines = [];
     };
     
     Space2D.prototype.getLocation = function (agentId) {
@@ -304,6 +315,10 @@ var jssim = jssim || {};
     
     Space2D.prototype.findAllAgents = function () {
         return this.agents;  
+    };
+    
+    Space2D.prototype.drawLine = function(x1, y1, x2, y2) {
+        this.lines.push(new jss.Line2D(x1, y1, x2, y2));  
     };
     
     Space2D.prototype.render = function (canvas) {
@@ -342,6 +357,46 @@ var jssim = jssim || {};
     };
     
     jss.Space2D = Space2D;
+    
+    var StackNode = function(value) {
+        this.value = value;
+        this.next = null;
+    };
+    
+    jss.StackNode = StackNode;
+    
+    var Stack = function (){
+        this.N = 0;
+        this.first = null;
+    };
+    
+    Stack.prototype.push = function(item) {
+        var oldFirst = this.first;
+        this.first = new jss.StackNode(item);
+        this.first.next = oldFirst;
+        this.N++;
+    };
+    
+    Stack.prototype.pop = function (item) {
+        var oldFirst = this.first;
+        if(oldFirst == null) {
+            return null;
+        }
+        var item = oldFirst.value;
+        this.first = oldFirst.next;
+        this.N--;
+        return item;
+    };
+    
+    Stack.prototype.size = function () {
+        return this.N;
+    };
+    
+    Stack.prototype.isEmpty = function () {
+        return this.N == 0;
+    };
+    
+    jss.Stack = Stack;
     
     var Grid = function (width, height) {
         this.width = width;
@@ -404,6 +459,20 @@ var jssim = jssim || {};
         context.clearRect(0, 0, canvas.width, canvas.height);
         
         context.fillStyle=this.color;
+        
+        
+        for(var i=0; i < this.lines.length; ++i) {
+            var line = this.lines[i];
+            var x1 = line.x1;
+            var y1 = line.y1;
+            var x2 = line.x2;
+            var y2 = line.y2;
+            context.beginPath();
+            context.moveTo(x1 * this.cellWidth, y1 * this.cellHeight);
+            context.lineTo(x2 * this.cellWidth, y2 * this.cellHeight);
+            context.stroke();
+        }
+        
         for(var i=0; i < this.width; ++i){
             for(var j=0; j < this.height; ++j) {
                 if(this.cells[i][j] == 1) {
