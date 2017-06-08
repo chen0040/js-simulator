@@ -89,7 +89,7 @@
                 Turtle.prototype.update = function(deltaTime){
                     // (X → F[−X][X]F[−X]+FX), (F → FF)
                     var rules = '';
-                    this.pen.clearCanvas();
+                    
 
                     while(this.pen.hasMoreCommands()){
                         var symbol = this.pen.popCommand();
@@ -106,6 +106,7 @@
                         rules += rule;
                     }
 
+                    this.pen.reset();
                     for(var i = 0; i < rules.length; ++i) {
                         var symbol = rules[i];
                         if(symbol == 'F') {
@@ -122,12 +123,13 @@
                         pen.pushCommand(rules[i]);
                     }
 
-                    console.log('state at time ' + this.time + ': ' + rules);
+                    //console.log('state at time ' + this.time + ': ' + rules);
                 };
 
                 var scheduler = new jssim.Scheduler();
                 var pen = new Pen(10, 0, 60);
                 var turtle = new Turtle(scheduler, pen);
+                turtle.stride = 5;
 
                 function reset() {
                     scheduler.reset(); 
@@ -140,8 +142,6 @@
                 reset();
                 
                 var canvas = document.getElementById("myCanvas");
-                pen.canvas.drawLine(0, 0, 50, 50);
-                pen.canvas.render(canvas);
 
                 
                 setInterval(function(){ 

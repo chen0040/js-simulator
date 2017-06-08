@@ -337,6 +337,8 @@ var jssim = jssim || {};
         
         context.strokeStyle = "#0000FF";
         
+        var x0 = 0;
+        var y0 = 0;
         for(var i=0; i < this.lines.length; ++i) {
             context.beginPath();
             var line = this.lines[i];
@@ -344,6 +346,9 @@ var jssim = jssim || {};
             var y1 = line.y1;
             var x2 = line.x2;
             var y2 = line.y2;
+            console.log(x1 + ', ' + y1 + ' == ' + x0 + y0);
+            x0 = x2;
+            y0 = y2;
             context.moveTo(x1 * this.cellWidth, canvas.height - y1 * this.cellHeight);
             context.lineTo(x2 * this.cellWidth, canvas.height - y2 * this.cellHeight);
             context.stroke();

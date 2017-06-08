@@ -21,6 +21,7 @@ The following HTML demo is available:
 * Conway's Game of Life [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-game-of-life.html)
 * School Yard [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-school-yard.html)
 * L-System (Fractal Plant) [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-l-system.html)
+* L-System (Dragon Curve) [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-dragon-curve.html)
 
 More demo and HTML GUI supports will be added in the subsequent releases.
 

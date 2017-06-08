@@ -1,10 +1,10 @@
 <html>
     <head>
-        <title>Discrete-Event Simulator: Flocking</title>
+        <title>Discrete-Event Simulator: L-System (Dragon Curve)</title>
         <script src="../src/jssim.js" type="text/javascript"></script>
     </head>
     <body>
-        <h2>Discrete-Event Simulator: Flocking Boids <input type="text" id="simTime" value="" /></h2>
+        <h2>Discrete-Event Simulator: L-System (Dragon Curve) <input type="text" id="simTime" value="" /></h2>
         
         <canvas id="myCanvas" width="640" height="640" style="border:1px solid #000000;">
         </canvas>
@@ -88,6 +88,7 @@
                 Turtle.prototype = Object.create(jssim.SimEvent.prototype);
                 Turtle.prototype.update = function(deltaTime){
                     this.pen.clearCanvas();
+                    
                     // (X → X+YF+), (Y → −FX−Y)
                     var rules = '';
 
@@ -106,6 +107,8 @@
                         rules += rule;
                     }
 
+                    this.pen.reset();
+                    
                     for(var i = 0; i < rules.length; ++i) {
                         var symbol = rules[i];
                         if(symbol == 'F'){
@@ -119,7 +122,7 @@
                         pen.pushCommand(symbol);
                     }
 
-                    console.log('state at time ' + this.time + ': ' + rules);
+                    //console.log('state at time ' + this.time + ': ' + rules);
                 };
 
                 var scheduler = new jssim.Scheduler();
@@ -139,9 +142,6 @@
                 reset();
                 
                 var canvas = document.getElementById("myCanvas");
-                pen.canvas.drawLine(0, 0, 50, 50);
-                pen.canvas.render(canvas);
-
                 
                 setInterval(function(){ 
                     if(scheduler.current_time == 10) {
