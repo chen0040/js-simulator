@@ -1,6 +1,6 @@
 # js-simulator
 
-Inspired by the MASON Multiagent Simulation library in Java, js-simulator is a general-purpose discrete-event multiagent simulator for agent-based modelling and simulation. It was written entirely in Javascript. Currently the demo code contains the flocking boid demo, more demo and HTML GUI supports will be added in the subsequent releases.
+Inspired by the MASON Multiagent Simulation library in Java, js-simulator is a general-purpose discrete-event multiagent simulator for agent-based modelling and simulation. It was written entirely in Javascript. 
 
 [![Build Status](https://travis-ci.org/chen0040/js-simulator.svg?branch=master)](https://travis-ci.org/chen0040/js-simulator) [![Coverage Status](https://coveralls.io/repos/github/chen0040/js-simulator/badge.svg?branch=master)](https://coveralls.io/github/chen0040/js-simulator?branch=master) 
 
@@ -20,6 +20,8 @@ The following HTML demo is available:
 * Flocking Boids [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-flocking.html)
 * Conway's Game of Life [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-game-of-life.html)
 * School Yard [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-school-yard.html)
+
+More demo and HTML GUI supports will be added in the subsequent releases.
 
 
 # Usage
