@@ -377,7 +377,7 @@ var jssim = jssim || {};
             }
             if(agent.id){
                 context.font = "12 Arial";
-                context.fillText("" + agent.id,pos.x,pos.y);
+                context.fillText("" + agent.id,pos.x, canvas.height - pos.y);
             } 
             context.fillRect(pos.x, canvas.height - pos.y, width,height);
         }  
