@@ -1,0 +1,80 @@
+<html>
+    <head>
+        <title>Discrete-Event Simulator: Ant Foraging</title>
+        <script src="../src/jssim.js" type="text/javascript"></script>
+    </head>
+    <body>
+        <h2>Discrete-Event Simulator: Ant Foraging <input type="text" id="simTime" value="" /></h2>
+        
+        <canvas id="myCanvas" width="640" height="640" style="border:1px solid #000000;">
+        </canvas>
+        
+        <script>
+            (function(){
+                
+                var Ant = function(id, grid) {
+                    jssim.SimEvent(this);
+                    this.id = id;
+                    this.x = 0;
+                    this.y = 0;
+                    this.prev_x = x;
+                    this.prev_y = y;
+                    this.grid = grid;
+                };
+                
+                Ant.prototype.update = function(deltaTime) {
+                    for(var dx = -1; dx <= 1; ++dx) {
+                        for(var dy = -1; dy <= 1; ++dy) {
+                            var _x = this.x + dx;
+                            var _y = this.y + dy;
+                            if(_x == this.prev_x && _y == this.prev_y) continue;
+                            if(_x == this.x && _y == this.y) continue;
+                            if(!this.grid.hasPath(_x, _y)) {
+                                continue;
+                            }
+                        }
+                    }
+                };
+                
+                var scheduler = new jssim.Scheduler();
+                
+                var grid = new jssim.Grid(128, 128);
+                grid.cellWidth = 5;
+                grid.cellHeight = 5;
+                
+
+                function reset() {
+                    scheduler.reset(); 
+                    grid.reset();
+                    
+                    grid.createCylinder(50, 80, 20);
+                    grid.createCylinder(30, 100, 20);
+                    grid.createCylinder(80, 50, 20);
+                    
+                    grid.createTarget(100, 100, 4);
+                    
+                    for(var i = 0; i < 30; ++i) {
+                        var ant = new Ant(i, grid);
+                        ant.x = 10;
+                        ant.y = 10;
+                        scheduler.scheduleRepeatingIn(ant, 1);
+                    }
+                }
+                
+                reset();
+                
+                var canvas = document.getElementById("myCanvas");
+                
+                setInterval(function(){ 
+                    if(scheduler.current_time == 10000) {
+                        reset();
+                    }
+                    scheduler.update();
+                    grid.render(canvas);
+                    console.log('current simulation time: ' + scheduler.current_time);
+                    document.getElementById("simTime").value = "Simulation Time: " + scheduler.current_time;
+                }, 1000);
+            })();
+        </script>
+    </body>
+</html>

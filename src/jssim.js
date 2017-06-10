@@ -490,16 +490,24 @@ var jssim = jssim || {};
         this.height = height;
         this.cells = [];
         this.trails = [];
+        this.obstacles = [];
+        this.targets = [];
         for(var i = 0; i < width; ++i) {
             this.cells.push([]);
             this.trails.push([]);
+            this.obstacles.push([]);
+            this.targets.push([]);
             for(var j=0; j < height; ++j) {
                 this.cells[i].push(0);
                 this.trails[i].push(0);
+                this.obstacles[i].push(0);
+                this.targets[i].push(0);
             }
         }
         this.color = '#ff0000';
         this.trailColor = '#55aa55';
+        this.obstacleColor = '#888888';
+        this.targetColor = '#0000ff';
         this.cellWidth = 10;
         this.cellHeight = 10;
         this.showTrails = false;
@@ -508,7 +516,41 @@ var jssim = jssim || {};
     Grid.prototype.setCell = function(x, y, value) {
         this.cells[x][y] = value;
         if(value > 0) {
-            this.trails[x][y] = 1;
+            this.trails[x][y] += 1;
+        }
+    };
+    
+    Grid.prototype.createCylinder = function(x, y, radius) {
+        var min_x = x - radius;
+        var max_x = x + radius;
+        var min_y = y - radius;
+        var max_y = y + radius;
+        if(min_x < 0) min_x = 0;
+        if(max_x >= this.width) max_x = this.width -1;
+        if(min_y < 0) min_y = 0;
+        if(max_y >= this.height) max_y = this.height - 1;
+        for(var _x = min_x; _x <= max_x; ++_x) {
+            for(var _y = min_y; _y <= max_y; ++_y) {
+                var dx = _x - x;
+                var dy = _y - y;
+                var _radius = Math.sqrt(dx * dx + dy * dy);
+                if(_radius <= radius) {
+                    this.obstacles[_x][_y] = 1;
+                }
+            }
+        }
+    };
+    
+    Grid.prototype.createTarget = function(x, y, size) {
+        var size2 = Math.floor(size / 2);
+        var min_x = x - size2;  
+        var max_x = min_x + size;
+        var min_y = y - size2;
+        var max_y = min_y + size;
+        for(var _x = min_x; _x <= max_x; ++_x) {
+            for(var _y = min_y; _y <= max_y; ++_y) {
+                this.targets[_x][_y]  = 1;
+            }
         }
     };
     
@@ -533,8 +575,16 @@ var jssim = jssim || {};
             for(var j=0; j < this.height; ++j) {
                 this.cells[i][j] = 0;
                 this.trails[i][j] = 0;
+                this.obstacles[i][j] = 0;
+                this.targets[i][j] = 0;
             }
         }  
+    };
+    
+    Grid.prototype.hasPath = function (x, y) {
+        if(x < 0 || x >= this.width) return false;
+        if(y < 0 || y >= this.height) return false;
+        return this.obstables[x][y] <= 0;
     };
     
     Grid.prototype.render = function (canvas) {
@@ -550,11 +600,19 @@ var jssim = jssim || {};
 
         for(var i=0; i < this.width; ++i){
             for(var j=0; j < this.height; ++j) {
-                if(this.cells[i][j] == 1) {
+                if(this.obstacles[i][j] > 0) {
+                    context.fillStyle = this.obstacleColor;
+                    context.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth-1, this.cellHeight-1);
+                }
+                if(this.cells[i][j] > 0) {
                     context.fillStyle=this.color;
                     context.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth-1, this.cellHeight-1);
-                } else if(this.showTrails && this.trails[i][j] == 1) {
+                } else if(this.showTrails && this.trails[i][j] > 0) {
                     context.fillStyle=this.trailColor;
+                    context.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth-1, this.cellHeight-1);
+                } 
+                if(this.targets[i][j] > 0) {
+                    context.fillStyle = this.targetColor;
                     context.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth-1, this.cellHeight-1);
                 }
             }
