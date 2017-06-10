@@ -46,7 +46,7 @@ describe('Game of Life', function() {
       };
        
       var scheduler = new jssim.Scheduler();
-      var grid = new jssim.Grid(640, 640);
+      var grid = new jssim.Grid(64, 64);
        
       scheduler.reset();
       grid.reset();
