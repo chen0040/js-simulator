@@ -1,10 +1,10 @@
 <html>
     <head>
-        <title>Discrete-Event Simulator: Ant Foraging</title>
+        <title>Discrete-Event Simulator: Ant System</title>
         <script src="../src/jssim.js" type="text/javascript"></script>
     </head>
     <body>
-        <h2>Discrete-Event Simulator: Ant Foraging <input type="text" id="simTime" value="" /></h2>
+        <h2>Discrete-Event Simulator: Ant System <input type="text" id="simTime" value="" /></h2>
         
         <canvas id="myCanvas" width="640" height="640" style="border:1px solid #000000;">
         </canvas>
@@ -13,6 +13,8 @@
             (function(){
                 var target_x = 110;
                 var target_y = 40;
+                var tiles = 128;
+                var tau_0 = 1.0 / (tiles * tiles);
                 
                 var Evaporator = function(pheromones) {
                     jssim.SimEvent.call(this, 1);
@@ -22,12 +24,12 @@
                 Evaporator.prototype = Object.create(jssim.SimEvent);
                 
                 Evaporator.prototype.update = function(deltaTime) {
-                    for(var x = 0; x < 128; ++x) {
-                        for(var y = 0; y < 128; ++y) {
+                    for(var x = 0; x < tiles; ++x) {
+                        for(var y = 0; y < tiles; ++y) {
                             var t = this.pheromones.getCell(x, y);
                             t = 0.9 * t;
-                            if (t < 1.0 / (128 * 128)) {
-                                t = 1.0 / (128 * 128);
+                            if (t < tau_0) {
+                                t = tau_0;
                             }
                             this.pheromones.setCell(x, y, t);
                         }
@@ -63,17 +65,14 @@
                     this.path = [];
                 };
                 
-                Ant.prototype.update = function(deltaTime) {
-                    
-                    this.age++;
-                    
-                    if(this.age >= this.life) {
-                        this.reset();
+                Ant.prototype.depositPheromones = function () {
+                    for(var i = 0; i < this.path.length; ++i) {
+                        var move = this.path[i];
+                        this.pheromones.setCell(move.x, move.y, this.pheromones.getCell(move.x, move.y) + 1.0 / this.path.length);
                     }
-
-                    var act_x = this.x;
-                    var act_y = this.y;
-                    
+                };
+                
+                Ant.prototype.getCandidateMoves = function () {
                     var candidates = [];
                     
                     for(var dx = -1; dx <= 1; ++dx) {
@@ -89,14 +88,9 @@
                                 continue;
                             }
                             if(this.grid.isTarget(_x, _y)) {
-                                
-                                for(var i = 0; i < this.path.length; ++i) {
-                                    var move = this.path[i];
-                                    this.pheromones.setCell(move.x, move.y, this.pheromones.getCell(move.x, move.y) + 1.0 / this.path.length);
-                                }
+                                this.depositPheromones();
                                 this.reset();
-                                console.log(this.id + ' reach target!');
-                                return;
+                                return candidates;
                             }
                             
                             candidates.push({
@@ -105,7 +99,10 @@
                             });
                         }
                     }
-                    
+                    return candidates;
+                };
+                
+                Ant.prototype.selectMove = function (candidates) {
                     var heuristics = [];
                     
                     var dx2 = target_x - this.x;
@@ -117,7 +114,7 @@
                         var dy = move.y - this.y;
                         var dlen = Math.sqrt(dx * dx + dy * dy);
                         
-                        var heuristic_b = ((dx * dx2 + dy * dy2) / (dlen * dlen2) + 1) / (128 * 128); 
+                        var heuristic_b = ((dx * dx2 + dy * dy2) / (dlen * dlen2) + 1) / (tiles * tiles); 
                         var heuristic_a = this.pheromones.getCell(move.x, move.y);
                         var heuristic = heuristic_a * Math.pow(heuristic_b, 2.0);
                         
@@ -128,7 +125,8 @@
                     
                     var r = Math.random();
                     
-                    if(r < 0.9){
+                    if(r < 0.9) {
+                        // Exploitation
                         var max_i = -1;
                         var max_heuristic = 0;
                         for(var i=0; i < candidates.length; ++i) {
@@ -137,12 +135,9 @@
                                 max_i = i;
                             }
                         }
-                        if(max_i != -1){
-                            act_x = candidates[max_i].x;
-                            act_y = candidates[max_i].y;
-                            this.path.push(candidates[max_i]);
-                        }
+                        return max_i;
                     } else {
+                        // Exploration
                         r = Math.random();
                         var heuristic_sum = 0;
                         for(var i = 0; i < candidates.length; ++i) {
@@ -155,35 +150,59 @@
 
                         for(var i = 0; i < candidates.length; ++i) {
                             if(r <= heuristics[i]) {
-                                act_x = candidates[i].x;
-                                act_y = candidates[i].y;
-                                this.path.push(candidates[i]);
-                                break;
+                                return i;
                             }
                         }
                     }
+                    return -1;
+                }
+                
+                Ant.prototype.update = function(deltaTime) {
                     
+                    this.age++;
+                    
+                    if(this.age >= this.life) {
+                        this.reset();
+                    }
+
+                    
+                    
+                    var candidates = this.getCandidateMoves();
+                    
+                    if(candidates.length == 0) return;
+                    
+                    var max_i = this.selectMove(candidates);
+                    
+                    var act_x = this.x;
+                    var act_y = this.y;
+                    
+                    if(max_i != -1){
+                        act_x = candidates[max_i].x;
+                        act_y = candidates[max_i].y;
+                        this.path.push(candidates[max_i]);
+                    }
+                    
+                    this.moveTo(act_x, act_y);
+                    
+                };
+                
+                Ant.prototype.moveTo = function(act_x, act_y) {
                     this.grid.setCell(this.x, this.y, 0);
-                    
                     this.prev_x = this.x;
                     this.prev_y = this.y;
                     this.x = act_x;
                     this.y = act_y;
-                    
-                    
-                    
                     this.grid.setCell(this.x, this.y, 1);
-                    
                 };
                 
                 var scheduler = new jssim.Scheduler();
                 
-                var grid = new jssim.Grid(128, 128);
+                var grid = new jssim.Grid(tiles, tiles);
                 grid.cellWidth = 5;
                 grid.cellHeight = 5;
                 grid.showTrails = true;
                 
-                var pheromones = new jssim.Grid(128, 128);
+                var pheromones = new jssim.Grid(tiles, tiles);
                 pheromones.cellWidth = 5;
                 pheromones.cellHeight = 5;
                 
@@ -196,11 +215,14 @@
                     grid.createCylinder(50, 80, 20);
                     grid.createCylinder(30, 100, 10);
                     grid.createCylinder(80, 50, 21);
-                    grid.createCylinder(80, 30, 11);
+                    grid.createCylinder(80, 28, 11);
+                    grid.createCylinder(75, 35, 11);
                     
-                    for(var x= 0; x < 128; ++x){
-                        for(var y = 0; y <128; ++y) {
-                            pheromones.setCell(x, y, 1.0 / (128 * 128));
+                    grid.createCylinder(103, 26, 11);
+                    
+                    for(var x= 0; x < tiles; ++x){
+                        for(var y = 0; y <tiles; ++y) {
+                            pheromones.setCell(x, y, tau_0);
                         }
                     }
                     

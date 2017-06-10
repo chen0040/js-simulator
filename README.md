@@ -22,6 +22,7 @@ The following HTML demo is available:
 * School Yard [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-school-yard.html)
 * L-System (Fractal Plant) [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-l-system.html)
 * L-System (Dragon Curve) [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-dragon-curve.html)
+* Ant System [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-ant.html)
 
 More demo and HTML GUI supports will be added in the subsequent releases.
 
