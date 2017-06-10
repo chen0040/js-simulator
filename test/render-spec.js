@@ -46,6 +46,8 @@ describe('Render coverage test', function(){
        
        var grid = new jssim.Grid(64, 64);
        grid.setCell(10, 10, 1);
+       grid.setObstable(10, 10, 1);
+       grid.setTarget(5, 5, 1);
        grid.showTrails = true;
        var space = new jssim.Space2D();
        

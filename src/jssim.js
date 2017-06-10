@@ -520,6 +520,14 @@ var jssim = jssim || {};
         }
     };
     
+    Grid.prototype.setObstable = function(x, y, value) {
+        this.obstacles[x][y] = value;
+    };
+    
+    Grid.prototype.setTarget = function(x, y, value) {
+        this.targets[x][y] = value;
+    };
+    
     Grid.prototype.createCylinder = function(x, y, radius) {
         var min_x = x - radius;
         var max_x = x + radius;
