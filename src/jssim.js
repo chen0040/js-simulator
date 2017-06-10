@@ -581,10 +581,22 @@ var jssim = jssim || {};
         }  
     };
     
+    Grid.prototype.isOccupied = function (x, y) {
+        if(x < 0 || x >= this.width) return false;
+        if(y < 0 || y >= this.height) return false;
+        return this.cells[x][y] > 0;
+    };
+    
     Grid.prototype.hasPath = function (x, y) {
         if(x < 0 || x >= this.width) return false;
         if(y < 0 || y >= this.height) return false;
-        return this.obstables[x][y] <= 0;
+        return this.obstacles[x][y] <= 0;
+    };
+    
+    Grid.prototype.isTarget = function(x, y) {
+        if(x < 0 || x >= this.width) return false;
+        if(y < 0 || y >= this.height) return false;
+        return this.targets[x][y] > 0;
     };
     
     Grid.prototype.render = function (canvas) {

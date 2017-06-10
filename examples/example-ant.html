@@ -12,17 +12,23 @@
         <script>
             (function(){
                 
-                var Ant = function(id, grid) {
+                var Ant = function(id, grid, x, y) {
                     jssim.SimEvent(this);
                     this.id = id;
-                    this.x = 0;
-                    this.y = 0;
+                    this.x = x;
+                    this.y = y;
+                    this.init_x = x;
+                    this.init_y = y;
                     this.prev_x = x;
                     this.prev_y = y;
                     this.grid = grid;
+                    this.grid.setCell(this.x, this.y, 1);
                 };
                 
                 Ant.prototype.update = function(deltaTime) {
+                    var act_x = this.x;
+                    var act_y = this.y;
+                    
                     for(var dx = -1; dx <= 1; ++dx) {
                         for(var dy = -1; dy <= 1; ++dy) {
                             var _x = this.x + dx;
@@ -32,8 +38,34 @@
                             if(!this.grid.hasPath(_x, _y)) {
                                 continue;
                             }
+                            if(this.grid.isOccupied(_x, _y)) {
+                                continue;
+                            }
+                            if(this.grid.isTarget(_x, _y)) {
+                                this.grid.setCell(this.x, this.y, 0);
+                                this.x = this.init_x;
+                                this.y = this.init_y;
+                                this.prev_x = this.x;
+                                this.prev_y = this.y;
+                                this.grid.setCell(this.x, this.y, 1);
+                                console.log(this.id + ' reach target!');
+                                return;
+                            }
+                            act_x = _x;
+                            act_y = _y;
+                            
+                            break;
                         }
                     }
+                    
+                    this.grid.setCell(this.x, this.y, 0);
+                    
+                    this.prev_x = this.x;
+                    this.prev_y = this.y;
+                    this.x = act_x;
+                    this.y = act_y;
+                    
+                    this.grid.setCell(this.x, this.y, 1);
                 };
                 
                 var scheduler = new jssim.Scheduler();
@@ -54,9 +86,7 @@
                     grid.createTarget(100, 100, 4);
                     
                     for(var i = 0; i < 30; ++i) {
-                        var ant = new Ant(i, grid);
-                        ant.x = 10;
-                        ant.y = 10;
+                        var ant = new Ant(i, grid, 10, 10);
                         scheduler.scheduleRepeatingIn(ant, 1);
                     }
                 }
