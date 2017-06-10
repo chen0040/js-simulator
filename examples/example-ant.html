@@ -11,9 +11,31 @@
         
         <script>
             (function(){
+                var target_x = 110;
+                var target_y = 50;
+                
+                var Evaporator = function(pheromones) {
+                    jssim.SimEvent.call(this, 1);
+                    this.pheromones = pheromones;
+                };
+                
+                Evaporator.prototype = Object.create(jssim.SimEvent);
+                
+                Evaporator.prototype.update = function(deltaTime) {
+                    for(var x = 0; x < 128; ++x) {
+                        for(var y = 0; y < 128; ++y) {
+                            var t = this.pheromones.getCell(x, y);
+                            t = 0.9 * t;
+                            if (t < 1.0 / (128 * 128)) {
+                                t = 1.0 / (128 * 128);
+                            }
+                            this.pheromones.setCell(x, y, t);
+                        }
+                    }  
+                };
                 
                 var Ant = function(id, grid, pheromones, x, y) {
-                    jssim.SimEvent(this);
+                    jssim.SimEvent.call(this, 2);
                     this.id = id;
                     this.x = x;
                     this.y = y;
@@ -23,12 +45,32 @@
                     this.prev_y = y;
                     this.grid = grid;
                     this.pheromones = pheromones;
-                    this.target_x = 0;
-                    this.target_y = 0;
                     this.grid.setCell(this.x, this.y, 1);
+                    this.path = [];
+                    this.age = 0;
+                    this.life = 150;
+                };
+                Ant.prototype = Object.create(jssim.SimEvent);
+                
+                Ant.prototype.reset = function () {
+                    this.grid.setCell(this.x, this.y, 0);
+                    this.x = this.init_x;
+                    this.y = this.init_y;
+                    this.prev_x = this.x;
+                    this.prev_y = this.y;
+                    this.grid.setCell(this.x, this.y, 1);
+                    this.age = 0;
+                    this.path = [];
                 };
                 
                 Ant.prototype.update = function(deltaTime) {
+                    
+                    this.age++;
+                    
+                    if(this.age >= this.life) {
+                        this.reset();
+                    }
+
                     var act_x = this.x;
                     var act_y = this.y;
                     
@@ -43,16 +85,16 @@
                             if(!this.grid.hasPath(_x, _y)) {
                                 continue;
                             }
-                            /*if(this.grid.isOccupied(_x, _y)) {
+                            if(this.grid.isOccupied(_x, _y)) {
                                 continue;
-                            }*/
+                            }
                             if(this.grid.isTarget(_x, _y)) {
-                                this.grid.setCell(this.x, this.y, 0);
-                                this.x = this.init_x;
-                                this.y = this.init_y;
-                                this.prev_x = this.x;
-                                this.prev_y = this.y;
-                                this.grid.setCell(this.x, this.y, 1);
+                                
+                                for(var i = 0; i < this.path.length; ++i) {
+                                    var move = this.path[i];
+                                    this.pheromones.setCell(move.x, move.y, this.pheromones.getCell(move.x, move.y) + 1.0 / this.path.length);
+                                }
+                                this.reset();
                                 console.log(this.id + ' reach target!');
                                 return;
                             }
@@ -61,59 +103,64 @@
                                 x: _x,
                                 y: _y
                             });
-                            
-                            break;
                         }
                     }
                     
-                    var heuristic = [];
-                    var heuristic_sum = 0;
-                    var max_i = -1;
-                    var max_heuristic_b = 0;
-                    var dx2 = this.target_x - this.x;
-                    var dy2 = this.target_y - this.y;
-                    var dlen = dx2 * dx2 + dy2 * dy2;
+                    var heuristics = [];
+                    
+                    var dx2 = target_x - this.x;
+                    var dy2 = target_y - this.y;
+                    var dlen2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
                     for(var i = 0; i < candidates.length; ++i) {
                         var move = candidates[i];
                         var dx = move.x - this.x;
                         var dy = move.y - this.y;
-                        var distance = dx * dx2 + dy * dy2;
-                        var heuristic_b = dlen + distance;
-                        heuristic_sum += heuristic_b;
-                        heuristic.push(heuristic_b);
-                        if(heuristic_b > max_heuristic_b) {
-                            max_heuristic_b = heuristic_b;
-                            max_i = i;
-                        }
+                        var dlen = Math.sqrt(dx * dx + dy * dy);
+                        
+                        var heuristic_b = ((dx * dx2 + dy * dy2) / (dlen * dlen2) + 1) / (128 * 128); 
+                        var heuristic_a = this.pheromones.getCell(move.x, move.y);
+                        var heuristic = heuristic_a * Math.pow(heuristic_b, 2.0);
+                        
+                        heuristics.push(heuristic);
                     }
                     
-                    for(var i = 0; i < candidates.length; ++i) {
-                        var prev_h = 0;
-                        if(i > 0) prev_h = heuristic[i-1];
-                        heuristic[i] += prev_h;
-                    }
+                   
                     
-                    for(var i = 0; i < candidates.length; ++i) {
-                        heuristic[i] /= heuristic_sum;
-                    }
-                    
-                    /*
                     var r = Math.random();
                     
-                    for(var i = 0; i < candidates.length; ++i) {
-                        if(r <= heuristic[i]) {
-                            act_x = candidates[i].x;
-                            act_y = candidates[i].y;
-                            break;
+                    if(r < 0.9){
+                        var max_i = -1;
+                        var max_heuristic = 0;
+                        for(var i=0; i < candidates.length; ++i) {
+                            if(heuristics[i] > max_heuristic) {
+                                max_heuristic = heuristics[i];
+                                max_i = i;
+                            }
                         }
-                    }*/
-                    
-                    max_i = Math.floor(Math.random() * candidates.length);
-                    
-                    
-                    if(max_i != -1){
-                        act_x = candidates[max_i].x;
-                        act_y = candidates[max_i].y;
+                        if(max_i != -1){
+                            act_x = candidates[max_i].x;
+                            act_y = candidates[max_i].y;
+                            this.path.push(candidates[max_i]);
+                        }
+                    } else {
+                        r = Math.random();
+                        var heuristic_sum = 0;
+                        for(var i = 0; i < candidates.length; ++i) {
+                            heuristic_sum += heuristics[i];
+                            heuristics[i] = heuristic_sum;
+                        }
+                        for(var i = 0; i < candidates.length; ++i) {
+                            heuristics[i] /= heuristic_sum;
+                        }
+
+                        for(var i = 0; i < candidates.length; ++i) {
+                            if(r <= heuristics[i]) {
+                                act_x = candidates[i].x;
+                                act_y = candidates[i].y;
+                                this.path.push(candidates[i]);
+                                break;
+                            }
+                        }
                     }
                     
                     this.grid.setCell(this.x, this.y, 0);
@@ -123,7 +170,10 @@
                     this.x = act_x;
                     this.y = act_y;
                     
+                    
+                    
                     this.grid.setCell(this.x, this.y, 1);
+                    
                 };
                 
                 var scheduler = new jssim.Scheduler();
@@ -144,8 +194,9 @@
                     pheromones.reset();
                     
                     grid.createCylinder(50, 80, 20);
-                    grid.createCylinder(30, 100, 20);
-                    grid.createCylinder(80, 50, 20);
+                    grid.createCylinder(30, 100, 10);
+                    grid.createCylinder(80, 50, 21);
+                    grid.createCylinder(80, 20, 11);
                     
                     for(var x= 0; x < 128; ++x){
                         for(var y = 0; y <128; ++y) {
@@ -153,14 +204,16 @@
                         }
                     }
                     
-                    grid.createTarget(100, 100, 4);
+                    grid.createTarget(target_x, target_y, 4);
                     
                     for(var i = 0; i < 30; ++i) {
-                        var ant = new Ant(i, grid, pheromones, 10, 10);
-                        ant.target_x = 100;
-                        ant.target_y = 100;
+                        var dx = Math.floor(Math.random() * 10) - 5;
+                        var dy = Math.floor(Math.random() * 10) - 5;
+                        
+                        var ant = new Ant(i, grid, pheromones, 10+dx, 50+dy);
                         scheduler.scheduleRepeatingIn(ant, 1);
                     }
+                    scheduler.scheduleRepeatingIn(new Evaporator(pheromones), 1);
                 }
                 
                 reset();
@@ -173,7 +226,7 @@
                     }
                     scheduler.update();
                     grid.render(canvas);
-                    console.log('current simulation time: ' + scheduler.current_time);
+                    //console.log('current simulation time: ' + scheduler.current_time);
                     document.getElementById("simTime").value = "Simulation Time: " + scheduler.current_time;
                 }, 50);
             })();
