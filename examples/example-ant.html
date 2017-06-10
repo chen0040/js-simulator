@@ -12,7 +12,7 @@
         <script>
             (function(){
                 
-                var Ant = function(id, grid, x, y) {
+                var Ant = function(id, grid, pheromones, x, y) {
                     jssim.SimEvent(this);
                     this.id = id;
                     this.x = x;
@@ -22,12 +22,17 @@
                     this.prev_x = x;
                     this.prev_y = y;
                     this.grid = grid;
+                    this.pheromones = pheromones;
+                    this.target_x = 0;
+                    this.target_y = 0;
                     this.grid.setCell(this.x, this.y, 1);
                 };
                 
                 Ant.prototype.update = function(deltaTime) {
                     var act_x = this.x;
                     var act_y = this.y;
+                    
+                    var candidates = [];
                     
                     for(var dx = -1; dx <= 1; ++dx) {
                         for(var dy = -1; dy <= 1; ++dy) {
@@ -38,9 +43,9 @@
                             if(!this.grid.hasPath(_x, _y)) {
                                 continue;
                             }
-                            if(this.grid.isOccupied(_x, _y)) {
+                            /*if(this.grid.isOccupied(_x, _y)) {
                                 continue;
-                            }
+                            }*/
                             if(this.grid.isTarget(_x, _y)) {
                                 this.grid.setCell(this.x, this.y, 0);
                                 this.x = this.init_x;
@@ -51,11 +56,64 @@
                                 console.log(this.id + ' reach target!');
                                 return;
                             }
-                            act_x = _x;
-                            act_y = _y;
+                            
+                            candidates.push({
+                                x: _x,
+                                y: _y
+                            });
                             
                             break;
                         }
+                    }
+                    
+                    var heuristic = [];
+                    var heuristic_sum = 0;
+                    var max_i = -1;
+                    var max_heuristic_b = 0;
+                    var dx2 = this.target_x - this.x;
+                    var dy2 = this.target_y - this.y;
+                    var dlen = dx2 * dx2 + dy2 * dy2;
+                    for(var i = 0; i < candidates.length; ++i) {
+                        var move = candidates[i];
+                        var dx = move.x - this.x;
+                        var dy = move.y - this.y;
+                        var distance = dx * dx2 + dy * dy2;
+                        var heuristic_b = dlen + distance;
+                        heuristic_sum += heuristic_b;
+                        heuristic.push(heuristic_b);
+                        if(heuristic_b > max_heuristic_b) {
+                            max_heuristic_b = heuristic_b;
+                            max_i = i;
+                        }
+                    }
+                    
+                    for(var i = 0; i < candidates.length; ++i) {
+                        var prev_h = 0;
+                        if(i > 0) prev_h = heuristic[i-1];
+                        heuristic[i] += prev_h;
+                    }
+                    
+                    for(var i = 0; i < candidates.length; ++i) {
+                        heuristic[i] /= heuristic_sum;
+                    }
+                    
+                    /*
+                    var r = Math.random();
+                    
+                    for(var i = 0; i < candidates.length; ++i) {
+                        if(r <= heuristic[i]) {
+                            act_x = candidates[i].x;
+                            act_y = candidates[i].y;
+                            break;
+                        }
+                    }*/
+                    
+                    max_i = Math.floor(Math.random() * candidates.length);
+                    
+                    
+                    if(max_i != -1){
+                        act_x = candidates[max_i].x;
+                        act_y = candidates[max_i].y;
                     }
                     
                     this.grid.setCell(this.x, this.y, 0);
@@ -73,20 +131,34 @@
                 var grid = new jssim.Grid(128, 128);
                 grid.cellWidth = 5;
                 grid.cellHeight = 5;
+                grid.showTrails = true;
+                
+                var pheromones = new jssim.Grid(128, 128);
+                pheromones.cellWidth = 5;
+                pheromones.cellHeight = 5;
                 
 
                 function reset() {
                     scheduler.reset(); 
                     grid.reset();
+                    pheromones.reset();
                     
                     grid.createCylinder(50, 80, 20);
                     grid.createCylinder(30, 100, 20);
                     grid.createCylinder(80, 50, 20);
                     
+                    for(var x= 0; x < 128; ++x){
+                        for(var y = 0; y <128; ++y) {
+                            pheromones.setCell(x, y, 1.0 / (128 * 128));
+                        }
+                    }
+                    
                     grid.createTarget(100, 100, 4);
                     
                     for(var i = 0; i < 30; ++i) {
-                        var ant = new Ant(i, grid, 10, 10);
+                        var ant = new Ant(i, grid, pheromones, 10, 10);
+                        ant.target_x = 100;
+                        ant.target_y = 100;
                         scheduler.scheduleRepeatingIn(ant, 1);
                     }
                 }
@@ -103,7 +175,7 @@
                     grid.render(canvas);
                     console.log('current simulation time: ' + scheduler.current_time);
                     document.getElementById("simTime").value = "Simulation Time: " + scheduler.current_time;
-                }, 1000);
+                }, 50);
             })();
         </script>
     </body>
