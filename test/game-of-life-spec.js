@@ -61,7 +61,7 @@ describe('Game of Life', function() {
        
       scheduler.scheduleRepeatingIn(new CellularAgent(grid), 1);
        
-      while(scheduler.current_time < 20) {
+      while(scheduler.current_time < 5) {
           scheduler.update();
       }
    });
