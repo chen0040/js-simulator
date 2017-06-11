@@ -54,7 +54,7 @@
                             if(mysteriousObjects[i].type != 'Human') continue;
                             var ta = mysteriousObjects[i];
                             if(ta.isInfected()) continue;
-                            if(withinInfectionDistance(this, this.loc, ta, ta.loc))
+                            if(withinInfectionDistance(this.loc, ta.loc))
                                 ta.setInfected( true );
                             else
                             {
@@ -263,7 +263,7 @@
                     return false;
                 }
 
-                function withinInfectionDistance(agent1, a, agent2, b)
+                function withinInfectionDistance(a, b)
                 {
                     return ( (a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y) <= INFECTION_DISTANCE_SQUARED );
                 }
