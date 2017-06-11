@@ -73,7 +73,7 @@ describe('Ant System', function(){
                     var _y = this.y + dy;
                     if(_x == this.prev_x && _y == this.prev_y) continue;
                     if(_x == this.x && _y == this.y) continue;
-                    if(!this.grid.hasPath(_x, _y)) {
+                    if(this.grid.isObstacle(_x, _y)) {
                         continue;
                     }
                     if(this.grid.isOccupied(_x, _y)) {

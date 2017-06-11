@@ -595,10 +595,10 @@ var jssim = jssim || {};
         return this.cells[x][y] > 0;
     };
     
-    Grid.prototype.hasPath = function (x, y) {
+    Grid.prototype.isObstacle = function (x, y) {
         if(x < 0 || x >= this.width) return false;
         if(y < 0 || y >= this.height) return false;
-        return this.obstacles[x][y] <= 0;
+        return this.obstacles[x][y] > 0;
     };
     
     Grid.prototype.isTarget = function(x, y) {
