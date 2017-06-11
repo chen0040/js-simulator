@@ -16,9 +16,10 @@
                 var tiles = 128;
                 var tau_0 = 1.0 / (tiles * tiles);
                 
-                var Evaporator = function(pheromones) {
+                var Evaporator = function(pheromones, grid) {
                     jssim.SimEvent.call(this, 1);
                     this.pheromones = pheromones;
+                    this.grid = grid;
                 };
                 
                 Evaporator.prototype = Object.create(jssim.SimEvent);
@@ -30,6 +31,9 @@
                             t = 0.9 * t;
                             if (t < tau_0) {
                                 t = tau_0;
+                                this.grid.setPotential(x, y, 0);
+                            } else {
+                                this.grid.setPotential(x, y, t);
                             }
                             this.pheromones.setCell(x, y, t);
                         }
@@ -69,6 +73,7 @@
                     for(var i = 0; i < this.path.length; ++i) {
                         var move = this.path[i];
                         this.pheromones.setCell(move.x, move.y, this.pheromones.getCell(move.x, move.y) + 1.0 / this.path.length);
+                        this.grid.setPotential(move.x, move.y, this.pheromones.getCell(move.x, move.y));
                     }
                 };
                 
@@ -201,6 +206,7 @@
                 grid.cellWidth = 5;
                 grid.cellHeight = 5;
                 grid.showTrails = true;
+                grid.showPotentialField = true;
                 
                 var pheromones = new jssim.Grid(tiles, tiles);
                 pheromones.cellWidth = 5;
@@ -235,7 +241,7 @@
                         var ant = new Ant(i, grid, pheromones, 10+dx, 50+dy);
                         scheduler.scheduleRepeatingIn(ant, 1);
                     }
-                    scheduler.scheduleRepeatingIn(new Evaporator(pheromones), 1);
+                    scheduler.scheduleRepeatingIn(new Evaporator(pheromones, grid), 1);
                 }
                 
                 reset();

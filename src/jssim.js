@@ -490,6 +490,7 @@ var jssim = jssim || {};
         this.height = height;
         this.cells = [];
         this.trails = [];
+        this.potentialField = [];
         this.obstacles = [];
         this.targets = [];
         for(var i = 0; i < width; ++i) {
@@ -497,11 +498,13 @@ var jssim = jssim || {};
             this.trails.push([]);
             this.obstacles.push([]);
             this.targets.push([]);
+            this.potentialField.push([]);
             for(var j=0; j < height; ++j) {
                 this.cells[i].push(0);
                 this.trails[i].push(0);
                 this.obstacles[i].push(0);
                 this.targets[i].push(0);
+                this.potentialField[i].push(0);
             }
         }
         this.color = '#ff0000';
@@ -511,6 +514,9 @@ var jssim = jssim || {};
         this.cellWidth = 10;
         this.cellHeight = 10;
         this.showTrails = false;
+        this.showPotentialField = false;
+        this.maxPotential = -1000000.0;
+        this.minPotential = 1000000.0;
     };
     
     Grid.prototype.setCell = function(x, y, value) {
@@ -522,6 +528,16 @@ var jssim = jssim || {};
     
     Grid.prototype.setObstable = function(x, y, value) {
         this.obstacles[x][y] = value;
+    };
+    
+    Grid.prototype.setPotential = function(x, y, value) {
+        this.potentialField[x][y] = value;
+        if(value > this.maxPotential) {
+            this.maxPotential = value;
+        }
+        if(value < this.minPotential) {
+            this.minPotential = value;
+        }
     };
     
     Grid.prototype.setTarget = function(x, y, value) {
@@ -571,10 +587,23 @@ var jssim = jssim || {};
         var grid = new Grid(this.width, this.height);  
         for(var i=0; i < this.width; ++i) {
             for(var j=0; j < this.height; ++j) {
-                if(this.cells[i][j] == 0) continue;
-                grid.setCell(i, j, 1);
+                grid.cells[i][j] = this.cells[i][j];
+                grid.potentialField[i][j] = this.potentialField[i][j];
+                grid.obstacles[i][j] = this.obstacles[i][j];
+                grid.targets[i][j] = this.targets[i][j];
+                grid.trails[i][j] = this.trails[i][j];
             }
         }
+        grid.showPotentialField = this.showPotentialField;
+        grid.showTrails = this.showTrails;
+        grid.minPotential = this.minPotential;
+        grid.maxPotential = this.maxPotential;
+        grid.cellWidth = this.cellWidth;
+        grid.cellHeight = this.cellHeight;
+        grid.color = this.color;
+        grid.trailColor = this.trailColor;
+        grid.targetColor = this.targetColor;
+        grid.obstacleColor = this.obstacleColor;
         return grid;
     };
     
@@ -585,8 +614,12 @@ var jssim = jssim || {};
                 this.trails[i][j] = 0;
                 this.obstacles[i][j] = 0;
                 this.targets[i][j] = 0;
+                this.potentialField[i][j] = 0;
             }
         }  
+        
+        this.maxPotential = -1000000.0;
+        this.minPotential = 1000000.0;
     };
     
     Grid.prototype.isOccupied = function (x, y) {
@@ -620,15 +653,24 @@ var jssim = jssim || {};
 
         for(var i=0; i < this.width; ++i){
             for(var j=0; j < this.height; ++j) {
+                if(this.showTrails && this.trails[i][j] > 0) {
+                    context.fillStyle=this.trailColor;
+                    context.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth-1, this.cellHeight-1);
+                } 
+                if(this.showPotentialField && this.potentialField[i][j] != 0) {
+                    var potential = this.potentialField[i][j];
+                    var r = 255;
+                    var g = 200 + Math.floor(55 * (potential - this.minPotential) / (this.maxPotential - this.minPotential));
+                    var b = Math.floor(200 * (potential - this.minPotential) / (this.maxPotential - this.minPotential));
+                    context.fillStyle =  "rgb("+r+","+g+","+b+")";
+                    context.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth-1, this.cellHeight-1);
+                }
                 if(this.obstacles[i][j] > 0) {
                     context.fillStyle = this.obstacleColor;
                     context.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth-1, this.cellHeight-1);
                 }
                 if(this.cells[i][j] > 0) {
                     context.fillStyle=this.color;
-                    context.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth-1, this.cellHeight-1);
-                } else if(this.showTrails && this.trails[i][j] > 0) {
-                    context.fillStyle=this.trailColor;
                     context.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth-1, this.cellHeight-1);
                 } 
                 if(this.targets[i][j] > 0) {

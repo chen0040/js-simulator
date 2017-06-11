@@ -49,6 +49,9 @@ describe('Render coverage test', function(){
        grid.setObstable(10, 10, 1);
        grid.setTarget(5, 5, 1);
        grid.showTrails = true;
+       grid.showPotential = true;
+       grid.setPotential(10, 10, 10);
+       grid.setPotential(20, 20, 20);
        var space = new jssim.Space2D();
        
        space.drawLine(0, 0, 10, 10);
