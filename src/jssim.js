@@ -383,6 +383,17 @@ var jssim = jssim || {};
         }  
     };
     
+    Space2D.prototype.getNeighborsWithinDistance = function(loc, distance) {
+        var result = [];
+        for(id in this.locations) {
+            var loc2 = this.locations[id];
+            if(loc2.distance(loc) < distance){
+                result.push(this.agents[id]);
+            }
+        }    
+        return result;
+    };
+    
     jss.Space2D = Space2D;
     
     var StackNode = function(value) {
