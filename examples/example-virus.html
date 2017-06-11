@@ -108,6 +108,87 @@
                     }
                 };
                 
+                var Good = function(id, loc, space) {
+                    jssim.SimEvent.call(this);
+                    this.id = id;
+                    this.loc = loc;
+                    this.color = '#00ff00';
+                    this.desiredLocation = null;
+                    this.suggestedLocation = null;
+                    this.steps = 0;  
+                    this.space = space;
+                    space.updateAgent(this, loc.x, loc.y);
+                    this.type = 'Good';
+                    this.greedy = false;
+                };
+                
+                Good.prototype.update = function(deltaTime) {
+                    var mysteriousObjects = this.space.getNeighborsWithinDistance(this.loc, 10.0 * INFECTION_DISTANCE);
+                    
+                    var distance2DesiredLocation = 1000000;
+                    for(var i = 0 ; i < mysteriousObjects.numObjs ; i++ )
+                    {
+                        if(mysteriousObjects[i] != this )
+                        {
+                            if(mysteriousObjects[i].type != 'Human') continue;
+                            var ta = mysteriousObjects[i];
+                            if(!ta.isInfected()) continue;
+                            if(withinHealingDistance(this, this.loc, ta, ta.loc))
+                                ta.setInfected(false);
+                            else
+                            {
+                                if(this.greedy)
+                                {
+                                    var tmpDist = distanceSquared(this.loc, ta.loc);
+                                    if(tmpDist <  distance2DesiredLocation )
+                                    {
+                                        this.desiredLocation = ta.loc;
+                                        distance2DesiredLocation = tmpDist;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                        
+
+                    this.steps--;
+                    if( this.desiredLocation == null || !greedy )
+                    {
+                        if(this.steps <= 0 )
+                        {
+                            this.suggestedLocation = new jssim.Vector2D((Math.random()-0.5)*((XMAX-XMIN)/5-DIAMETER) + this.loc.x,
+                                (Math.random()-0.5)*((YMAX-YMIN)/5-DIAMETER) + this.loc.y);
+                            steps = 100;
+                        }
+                        this.desiredLocation = suggestedLocation;
+                    }
+
+                    var dx = this.desiredLocation.x - this.loc.x;
+                    var dy = this.desiredLocation.y - this.loc.y;
+
+                    var temp = 0.5 * Math.sqrt(dx*dx+dy*dy);
+                    if( temp < 1 )
+                    {
+                        steps = 0;
+                    }
+                    else
+                    {
+                        dx /= temp;
+                        dy /= temp;
+                    }
+                                
+
+                    if( !acceptablePosition(this, new Vector2D(this.loc.x + dx, this.loc.y + dy) ) )
+                    {
+                        steps = 0;
+                    }
+                    else
+                    {
+                        this.loc = new jssim.Vector2D(this.loc.x + dx, this.loc.y + dy);
+                        space.updateAgent(this, this.loc.x, this.loc.y);
+                    }
+                };
+                
                 
                 
                 function distanceSquared(var loc1, var loc2)
