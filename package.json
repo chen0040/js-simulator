@@ -1,6 +1,6 @@
 {
   "name": "js-simulator",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "General-purpose discrete-event simulator for agent-based modelling and simulation",
   "author": "Xianshun Chen",
   "contributors": [
@@ -40,6 +40,8 @@
     "flocking", 
     "L system",
     "fractal",
+    "particle swarm",
+    "ant system",
     "school yard",
     "game of life", 
     "simulation engine"
