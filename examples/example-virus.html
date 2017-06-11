@@ -137,7 +137,7 @@
                             if(mysteriousObjects[i].type != 'Human') continue;
                             var ta = mysteriousObjects[i];
                             if(!ta.isInfected()) continue;
-                            if(withinHealingDistance(this, this.loc, ta, ta.loc))
+                            if(withinHealingDistance(this.loc, ta.loc))
                                 ta.setInfected(false);
                             else
                             {
@@ -268,7 +268,7 @@
                     return ( (a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y) <= INFECTION_DISTANCE_SQUARED );
                 }
 
-                function withinHealingDistance(agent1, a, agent2, b )
+                function withinHealingDistance(a, b )
                 {
                     return ( (a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y) <= HEALING_DISTANCE_SQUARED );
                 }
