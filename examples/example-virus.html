@@ -47,7 +47,7 @@
                     var mysteriousObjects = this.space.getNeighborsWithinDistance(this.loc, 10.0 * INFECTION_DISTANCE);
                     
                     var distance2DesiredLocation = 1000000;
-                    for(var i = 0 ; i < mysteriousObjects.numObjs ; i++ )
+                    for(var i = 0 ; i < mysteriousObjects.length ; i++ )
                     {
                         if(mysteriousObjects[i] != this )
                         {
@@ -90,7 +90,7 @@
                     var temp = 0.5 * Math.sqrt(dx*dx+dy*dy);
                     if( temp < 1 )
                     {
-                        steps = 0;
+                        this.steps = 0;
                     }
                     else
                     {
@@ -99,9 +99,9 @@
                     }
                                 
 
-                    if( !acceptablePosition(this, new Vector2D(this.loc.x + dx, this.loc.y + dy) ) )
+                    if( !acceptablePosition(this, new jssim.Vector2D(this.loc.x + dx, this.loc.y + dy), this.space) )
                     {
-                        steps = 0;
+                        this.steps = 0;
                     }
                     else
                     {
@@ -130,7 +130,7 @@
                     var mysteriousObjects = this.space.getNeighborsWithinDistance(this.loc, 10.0 * INFECTION_DISTANCE);
                     
                     var distance2DesiredLocation = 1000000;
-                    for(var i = 0 ; i < mysteriousObjects.numObjs ; i++ )
+                    for(var i = 0 ; i < mysteriousObjects.length ; i++ )
                     {
                         if(mysteriousObjects[i] != this )
                         {
@@ -173,7 +173,7 @@
                     var temp = 0.5 * Math.sqrt(dx*dx+dy*dy);
                     if( temp < 1 )
                     {
-                        steps = 0;
+                        this.steps = 0;
                     }
                     else
                     {
@@ -182,9 +182,9 @@
                     }
                                 
 
-                    if( !acceptablePosition(this, new Vector2D(this.loc.x + dx, this.loc.y + dy) ) )
+                    if( !acceptablePosition(this, new jssim.Vector2D(this.loc.x + dx, this.loc.y + dy), this.space))
                     {
-                        steps = 0;
+                        this.steps = 0;
                     }
                     else
                     {
@@ -197,22 +197,36 @@
                     jssim.SimEvent.call(this);
                     this.id = id;
                     this.loc = loc;
-                    this.color = '#0000ff';
+                    this.color = '#ffff00';
                     this.desiredLocation = null;
                     this.suggestedLocation = null;
                     this.steps = 0;  
                     this.space = space;
                     space.updateAgent(this, loc.x, loc.y);
                     this.type = 'Human';
+                    this.infected = false;
                 };
                 
                 Human.prototype = Object.create(jssim.SimEvent.prototype);
+                
+                Human.prototype.setInfected = function(infected) {
+                    this.infected = infected;
+                    if(infected){
+                        this.color = '#00ffff';
+                    } else {
+                        this.color = '#ffff00';
+                    }
+                };
+                
+                Human.prototype.isInfected = function() {
+                    return this.infected;
+                };
                 
                 Human.prototype.update = function(deltaTime) {
                     this.steps--;
                     if( this.desiredLocation == null || this.steps <= 0 )
                     {
-                        desiredLocation = new Double2D((Math.random()-0.5)*((XMAX-XMIN)/5-DIAMETER) + this.loc.x,
+                        desiredLocation = new jssim.Vector2D((Math.random()-0.5)*((XMAX-XMIN)/5-DIAMETER) + this.loc.x,
                             (Math.random()-0.5)*((YMAX-YMIN)/5-DIAMETER) + this.loc.y);
                         steps = 50 + Math.floor(Math.random() * 50);
                     }
@@ -233,7 +247,7 @@
                     }
                 
 
-                    if( ! acceptablePosition( this, new Double2D( agentLocation.x + dx, agentLocation.y + dy ) ) )
+                    if( ! acceptablePosition(this, new jssim.Vector2D( agentLocation.x + dx, agentLocation.y + dy ), this.space) )
                     {
                         steps = 0;
                     }
@@ -251,7 +265,7 @@
                     return( (loc1.x-loc2.x)*(loc1.x-loc2.x)+(loc1.y-loc2.y)*(loc1.y-loc2.y) );
                 }
                 
-                function conflict(agent1, a, agent2, b)
+                function conflict(a, b)
                 {
                     if( ( ( a.x > b.x && a.x < b.x+DIAMETER ) ||
                             ( a.x+DIAMETER > b.x && a.x+DIAMETER < b.x+DIAMETER ) ) &&
@@ -278,17 +292,13 @@
                     if( location.x < DIAMETER/2 || location.x > (XMAX-XMIN)-DIAMETER/2 ||
                         location.y < DIAMETER/2 || location.y > (YMAX-YMIN)-DIAMETER/2 )
                         return false;
-                    var mysteriousObjects = environment.getNeighborsWithinDistance( location, 2*DIAMETER );
-                    if( mysteriousObjects != null )
+                    var mysteriousObjects = space.getNeighborsWithinDistance( location, 2*DIAMETER );
+                    for(var i = 0 ; i < mysteriousObjects.length ; i++ )
                     {
-                        for(var i = 0 ; i < mysteriousObjects.length ; i++ )
+                        if(mysteriousObjects[i] != agent)
                         {
-                            if(mysteriousObjects[i] != agent )
-                            {
-                                var ta = mysteriousObjects[i];
-                                if( conflict(agent, location, ta, space.getLocation(ta.id) ) )
-                                    return false;
-                            }
+                            var ta = mysteriousObjects[i];
+                            if(conflict(location, space.getLocation(ta.id))) return false;
                         }
                     }
                     return true;
@@ -313,7 +323,7 @@
                         var times = 0;
                         do
                         {
-                            loc = new Vector2D(Math.random()*(XMAX-XMIN-DIAMETER)+XMIN+DIAMETER/2,
+                            loc = new jssim.Vector2D(Math.random()*(XMAX-XMIN-DIAMETER)+XMIN+DIAMETER/2,
                                 Math.random()*(YMAX-YMIN-DIAMETER)+YMIN+DIAMETER/2 );
                             if( x < NUM_HUMANS )
                                 agent = new Human( "Human"+x, loc, space);
