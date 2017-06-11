@@ -8,9 +8,10 @@
         <p>
             <input type="text" id="simTime" value="" />
             <input type="text" id="globalBest" value="" />
+            <input type="text" id="averageScore" value="" />
             
         </p>
-        <p>Particle Swarm will restart randomly every 40 seconds :)</p>
+        <p>The potential field is a Rastrigin function. Particle Swarm will restart randomly every 40 seconds :)</p>
         <canvas id="myCanvas" width="640" height="640" style="border:1px solid #000000;">
         </canvas>
         
@@ -106,6 +107,7 @@
                   grid.cellWidth = 5;
                   grid.cellHeight = 5;
                   grid.showPotentialField = true;
+                  var particles = [];
                 
                   function RosenBrock(x, y) {
                      x = (x - 64) * 5.0 / 128.0;
@@ -142,8 +144,11 @@
                       global_best_y = Math.floor(Math.random() * 128);
                       global_best_cost = RosenBrock(global_best_x, global_best_y);
 
+                      particles = [];
                       for(var i = 0; i < particleCount; ++i) {
-                        scheduler.scheduleRepeatingIn(new ParticleAgent(i, grid), 1);
+                        var p = new ParticleAgent(i, grid);
+                        particles.push(p);
+                        scheduler.scheduleRepeatingIn(p, 1);
                       }
                   }
 
@@ -156,6 +161,17 @@
                       //console.log('current simulation time: ' + scheduler.current_time);
                       document.getElementById("simTime").value = "Generation: " + scheduler.current_time;
                       document.getElementById("globalBest").value = "Best Score: " + global_best_cost;
+                      
+                      var averageScore = 0;
+                      for(var i= 0; i < particleCount; ++i) {
+                          var p = particles[i];
+                          averageScore += p.cost;
+                      }
+                      averageScore /= particleCount;
+                      
+                      document.getElementById("averageScore").value = "Avg Score: " + averageScore;
+                      
+                      
                   }, 500);
                   setInterval(init, 40000);
             })();
