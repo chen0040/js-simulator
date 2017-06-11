@@ -12,46 +12,80 @@
         
         <script>
             (function(){
-                 var ParticleAgent = function(world) {
+                 var global_best_x = 0;
+                 var global_best_y = 0;
+                 var global_best_cost = 1000000;
+                 var C1 = 1;
+                 var C2 = 2;
+                 var particleCount = 40;
+                 
+                 var ParticleAgent = function(id, world) {
                       jssim.SimEvent.call(this);
-                      this.world = world;
+                      this.grid = world;
+                      this.x = Math.floor(Math.random() * 128);
+                      this.y = Math.floor(Math.random() * 128);
+                      this.localBestX = this.x;
+                      this.localBestY = this.y;
+                      this.localBestCost = 1000000;
+                      this.vX = 0;
+                      this.vY = 0;
+                      this.id = id;
+                      this.cost = 1000000;
                   }; 
 
                   ParticleAgent.prototype = Object.create(jssim.SimEvent.prototype);
                   ParticleAgent.prototype.update = function (deltaTime) {
-                      var width = this.world.width;
-                      var height = this.world.height;
-                      var past_grid = this.world.makeCopy();
-                      for(var i=0; i < width; ++i) {
-                          for(var j = 0; j < height; ++j) {
-                              var count = 0;
-                              for(var dx = -1; dx < 2; ++dx) {
-                                  var x = i + dx;
-                                  if (x >= width) {
-                                      x = 0;
-                                  }
-                                  if (x < 0) {
-                                      x = width - 1;
-                                  }
-                                  for(var dy = -1; dy < 2; ++dy) {
-                                    var y = j + dy;
-                                      if(y >= height) {
-                                          y = 0;
-                                      }
-                                      if(y < 0) {
-                                          y = height - 1;
-                                      }
-                                      count += past_grid.getCell(x, y);
-                                  }
-                              }
-                              if (count <= 2 || count >= 5) {
-                                  this.world.setCell(i, j, 0); // dead
-                              }
-                              if (count == 3) {
-                                  this.world.setCell(i, j, 1); // live
-                              }
-                          }
-                      }
+                      this.updateVelocity();
+                      this.updatePosition();
+                      this.evaluateCost();
+                      this.updateLocalBest();
+                      this.updateGlobalBest();
+                  };
+                
+                  ParticleAgent.prototype.evaluateCost = function() {
+                      
+                  };
+                 
+                  ParticleAgent.prototype.updateGlobalBest = function() {
+                      
+                  };
+                
+                  ParticleAgent.updateLocalBest = function() {
+                        
+                  };
+                
+                  ParticleAgent.prototype.updateVelocity = function() {
+                    var oldVX = this.vX;
+                    var oldVY = this.vY;
+                      
+                    var oldX = this.x;
+                    var oldY = this.y;
+
+                    var r1 = Math.random();
+                    var r2 = Math.random();
+                    var r3 = Math.random();
+
+                    var w = 0.5 + r3 / 2;
+                    var newVX = w * oldVX + C1 * r1 * (this.localBestX - oldX) + C2 * r2 * (global_best_x - oldX);
+                      
+                    r1 = Math.random();
+                    r2 = Math.random();
+                    r3 = Math.random();
+
+                    w = 0.5 + r3 / 2;
+                    var newVY = w * oldVY + C1 * r1 * (this.localBestY - oldY) + C2 * r2 * (global_best_y - oldY);
+
+                    this.vX = newVX;
+                    this.vY = newVY;
+                  };
+                
+                  ParticleAgent.prototype.updatePosition = function() {
+                    this.grid.setCell(this.x, this.y, 0);
+                    this.x = Math.min(127, this.vX + this.x);
+                    this.y = Math.min(127, this.vY + this.y);
+                    this.x = Math.max(0, Math.floor(this.x));
+                    this.y = Math.max(0, Math.floor(this.y));
+                    this.grid.setCell(this.x, this.y, 1);
                   };
 
                   var scheduler = new jssim.Scheduler();
@@ -61,7 +95,7 @@
                   grid.showPotentialField = true;
                 
                   function RosenBrock(x, y) {
-                     x = (x - 64) * 5.0 / 128.0
+                     x = (x - 64) * 5.0 / 128.0;
                      y = (y - 64) * 5.0 / 128.0;
                      var expr1 = (x*x - y);
                      var expr2 = 1 - x;
@@ -69,13 +103,13 @@
                   }
                 
                   function Rastrigin(x, y) {
-                      x = (x - 64) * 5.12 / 128.0
+                      x = (x - 64) * 5.12 / 128.0;
                      y = (y - 64) * 5.12 / 128.0;
                       return 20 + x*x - 10*Math.cos(2*Math.PI*x) + y*y - 10*Math.cos(2*Math.PI*y);
                   }
                 
                   function Griewangk(x, y) {
-                      x = (x - 64) * 600 / 128.0
+                      x = (x - 64) * 600 / 128.0;
                      y = (y - 64) * 600 / 128.0;
                       return (1 + (x*x) / 4000 + (y*y) / 4000 - Math.cos(x) * Math.cos(y / Math.sqrt(2)));
                   }
@@ -83,18 +117,7 @@
                   function init() {
                       scheduler.reset();
                       grid.reset();
-                      grid.cellWidth = 5;
-                      grid.cellHeight = 5;
-                      grid.showTrails = true;
-                      grid.trailColor = '#55ff55';
-
-                      for(var i = 0; i < 32; ++i){
-                          for(var j=0; j < 32; ++j) {
-                              var x = Math.floor(Math.random() * 32 + 64);
-                              var y = Math.floor(Math.random() * 32 + 64);
-                              grid.setCell(x, y, 1);
-                          }
-                      }
+                      
                       
                       for(var x = 0; x < 128; ++x) {
                           for(var y=0; y < 128; ++y) {
@@ -102,8 +125,9 @@
                           }
                       }
 
-
-                      scheduler.scheduleRepeatingIn(new ParticleAgent(grid), 1);
+                      for(var i = 0; i < particleCount; ++i) {
+                        scheduler.scheduleRepeatingIn(new ParticleAgent(i, grid), 1);
+                      }
                   }
 
                   init();
