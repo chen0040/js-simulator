@@ -5,6 +5,25 @@
     </head>
     <body>
         <h2>Discrete-Event Simulator: Particle Swarm </h2>
+        
+        <p>
+            Particle Swarm Optimization (PSO) is a population-oriented stochastic search technique similar to genetic algorithms, evolutionary strategies, and other     evolutionary computation algorithms.  The technique discovers solutions for N-dimensional parameterized problems: basically it discovers the point in N-dimensional space which maximizes some quality function.
+        </p>
+
+        <p>
+            PSO works approximately as follows: a "swarm" of candidate solutions ("particles") are placed randomly throughout the space and with a random initial velocity.  Each particle measures the quality of its present location in space.  This velocity vector affects how each particle moves in the space, and it is changed each timestep according to a weighted sum of the following values:
+        </p>
+        
+        <ul>
+            <li>A vector towards the <b>personal best</b>-quality location the particle has been.</li>
+            <li>A vector towards the <b>global best</b>-quality location any member of the swarm has ever visited.</li>
+            <li>A vector towards the <b>"neighborhood best"</b>: all the particles are organized beforehand in a list.  A particle's neighborhood are himself and the M individuals on either side of him.  The neighborhood best is the best-quality location any neighbor ever visited.</li>
+            <li>The particle's previous velocity vector.</li>
+        </ul>
+        
+        <p>The demo visualize the PSO running on the cost function Rastrigin.</p>
+        
+        
         <p>
             <input type="text" id="simTime" value="" />
             <input type="text" id="globalBest" value="" />

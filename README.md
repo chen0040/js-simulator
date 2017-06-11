@@ -24,6 +24,7 @@ The following HTML demo is available:
 * L-System (Dragon Curve) [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-dragon-curve.html)
 * Ant System [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-ant.html)
 * Particle Swarm [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-pso.html)
+* Virus [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-virus.html)
 
 More demo and HTML GUI supports will be added in the subsequent releases.
 
