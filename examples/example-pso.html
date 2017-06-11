@@ -56,6 +56,29 @@
 
                   var scheduler = new jssim.Scheduler();
                   var grid = new jssim.Grid(128, 128);
+                  grid.cellWidth = 5;
+                  grid.cellHeight = 5;
+                  grid.showPotentialField = true;
+                
+                  function RosenBrock(x, y) {
+                     x = (x - 64) * 5.0 / 128.0
+                     y = (y - 64) * 5.0 / 128.0;
+                     var expr1 = (x*x - y);
+                     var expr2 = 1 - x;
+                     return 100 * expr1*expr1 + expr2*expr2;
+                  }
+                
+                  function Rastrigin(x, y) {
+                      x = (x - 64) * 5.12 / 128.0
+                     y = (y - 64) * 5.12 / 128.0;
+                      return 20 + x*x - 10*Math.cos(2*Math.PI*x) + y*y - 10*Math.cos(2*Math.PI*y);
+                  }
+                
+                  function Griewangk(x, y) {
+                      x = (x - 64) * 600 / 128.0
+                     y = (y - 64) * 600 / 128.0;
+                      return (1 + (x*x) / 4000 + (y*y) / 4000 - Math.cos(x) * Math.cos(y / Math.sqrt(2)));
+                  }
 
                   function init() {
                       scheduler.reset();
@@ -72,14 +95,13 @@
                               grid.setCell(x, y, 1);
                           }
                       }
+                      
+                      for(var x = 0; x < 128; ++x) {
+                          for(var y=0; y < 128; ++y) {
+                               grid.setPotential(x, y, Rastrigin(x, y));
+                          }
+                      }
 
-                      grid.setCell(1, 0, 1);
-                      grid.setCell(2, 0, 1);
-                      grid.setCell(0, 1, 1);
-                      grid.setCell(1, 1, 1);
-                      grid.setCell(1, 2, 1);
-                      grid.setCell(2, 2, 1);
-                      grid.setCell(2, 3, 1);
 
                       scheduler.scheduleRepeatingIn(new ParticleAgent(grid), 1);
                   }
@@ -90,9 +112,9 @@
                       scheduler.update();
                       
                       grid.render(canvas);
-                      console.log('current simulation time: ' + scheduler.current_time);
+                      //console.log('current simulation time: ' + scheduler.current_time);
                       document.getElementById("simTime").value = "Generation: " + scheduler.current_time;
-                  }, 50);
+                  }, 500);
                   setInterval(init, 40000);
             })();
         </script>

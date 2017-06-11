@@ -660,8 +660,8 @@ var jssim = jssim || {};
                 if(this.showPotentialField && this.potentialField[i][j] != 0) {
                     var potential = this.potentialField[i][j];
                     var r = 255;
-                    var g = 200 + Math.floor(55 * (potential - this.minPotential) / (this.maxPotential - this.minPotential));
-                    var b = Math.floor(200 * (potential - this.minPotential) / (this.maxPotential - this.minPotential));
+                    var g = 100 + Math.floor(155 * (potential - this.minPotential) / (this.maxPotential - this.minPotential));
+                    var b = Math.floor(255 * (potential - this.minPotential) / (this.maxPotential - this.minPotential));
                     context.fillStyle =  "rgb("+r+","+g+","+b+")";
                     context.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth-1, this.cellHeight-1);
                 }
