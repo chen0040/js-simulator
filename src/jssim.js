@@ -105,9 +105,6 @@ var jssim = jssim || {};
         } else {
             this.rank = 1;
         }
-        if(this.rank < 1) {
-            this.rank = 1;
-        }
     };
     
     var Scheduler = function () {

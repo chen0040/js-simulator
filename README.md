@@ -47,7 +47,7 @@ The scheduler schedules and fires events based on their time and rank (i.e. the 
 To schedule the an event to fire at a particular time:
 
 ```javascript
-var rank = 1; // lowest rank being 1, the higher the rank, the higher the priority assigned and the higher-rank event will be fired first for all events occurring at the same time interval
+var rank = 1; // the higher the rank, the higher the priority assigned and the higher-rank event will be fired first for all events occurring at the same time interval
 var evt = new jssim.SimEvent(rank);
 evt.id = 20; 
 evt.update = function(deltaTime) {
