@@ -1,6 +1,6 @@
 {
   "name": "js-simulator",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "General-purpose discrete-event simulator for agent-based modelling and simulation",
   "author": "Xianshun Chen",
   "contributors": [

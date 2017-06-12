@@ -25,6 +25,7 @@ The following HTML demo is available:
 * Ant System [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-ant.html)
 * Particle Swarm [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-pso.html)
 * Virus [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-virus.html)
+* (Spring) Balls [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-balls.html)
 
 More demo and HTML GUI supports will be added in the subsequent releases.
 
