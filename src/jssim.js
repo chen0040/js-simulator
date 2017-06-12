@@ -359,27 +359,32 @@ var jssim = jssim || {};
         for(id in this.locations){
             var agent = this.agents[id];
             var pos = this.locations[id];
-            context.fillStyle="#000000";
-            if(agent.color) {
-                context.fillStyle = agent.color;
+            
+            if(agent.draw) {
+                agent.draw(context, new jss.Vector2D(pos.x, canvas.height - pos.y));
+            } else {
+                context.fillStyle="#000000";
+                if(agent.color) {
+                    context.fillStyle = agent.color;
+                }
+                var width = 20;
+                var height = 20;
+                if(agent.size) {
+                    width = agent.size.x;
+                    height = agent.size.y;
+                }
+                if(!width) {
+                    width = 20;
+                }
+                if(!height) {
+                    height = 20;
+                }
+                if(agent.id){
+                    context.font = "12 Arial";
+                    context.fillText("" + agent.id,pos.x, canvas.height - pos.y);
+                } 
+                context.fillRect(pos.x, canvas.height - pos.y, width,height);
             }
-            var width = 20;
-            var height = 20;
-            if(agent.size) {
-                width = agent.size.x;
-                height = agent.size.y;
-            }
-            if(!width) {
-                width = 20;
-            }
-            if(!height) {
-                height = 20;
-            }
-            if(agent.id){
-                context.font = "12 Arial";
-                context.fillText("" + agent.id,pos.x, canvas.height - pos.y);
-            } 
-            context.fillRect(pos.x, canvas.height - pos.y, width,height);
         }  
     };
     

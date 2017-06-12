@@ -21,7 +21,7 @@
                 var maxLaxBandDistance = 50.0;
                 var minBandStrength = 5.0;
                 var maxBandStrength = 10.0;
-                var collisionDistance = 5.0;
+                var collisionDistance = 40.0;
                 
                 var worldWidth = 800;
                 var worldHeight = 600;
@@ -66,7 +66,7 @@
                 Ball.prototype.computeCollision = function() {
                     var me = this.space.getLocation(this.id);
                     var bag = this.space.getNeighborsWithinDistance(me, collisionDistance);
-                    collision = bag.length > 1;  // other than myself of course  
+                    this.collision = bag.length > 1;  // other than myself of course  
                 };
                 
                 Ball.prototype.addForce = function(otherBallLoc, myLoc, band) {
@@ -115,7 +115,6 @@
                     var ax = this.forcex / this.mass;
                     var ay = this.forcey / this.mass;
                     
-                    console.log(ax);
 
                     // velocity = velocity + acceleration
                     this.velocityx += ax;
@@ -130,6 +129,27 @@
 
                     // compute collisions
                     this.computeCollision();  
+                };
+                
+                Ball.prototype.draw = function(context, pos) {
+                    context.fillStyle="#000000";
+                    if(this.collision) {
+                        context.fillStyle = '#ff0000';
+                    } else {
+                        context.fillStyle = '#00ff00';
+                    }
+                    var size = 20;
+                    
+                    //context.fillRect(pos.x, worldHeight - pos.y, width, height);
+                    context.beginPath();
+                    context.arc(pos.x, pos.y, size, 0, 2 * Math.PI);
+                    context.fill();
+                    
+                    context.fillStyle = '#ffffff';
+                    if(this.id){
+                        context.font = "12 Arial";
+                        context.fillText("" + this.id,pos.x, pos.y);
+                    } 
                 };
                 
                 var scheduler = new jssim.Scheduler();
@@ -194,14 +214,15 @@
                 var canvas = document.getElementById("myCanvas");
                 
                 setInterval(function(){ 
-                    if(scheduler.current_time == 10000) {
+                    if(scheduler.current_time == 100) {
                         reset();
                     }
-                    scheduler.update();
+                    scheduler.update();                    
                     space.render(canvas);
+                    
                     //console.log('current simulation time: ' + scheduler.current_time);
                     document.getElementById("simTime").value = "Simulation Time: " + scheduler.current_time;
-                }, 1000);
+                }, 100);
             })();
         </script>
     </body>
