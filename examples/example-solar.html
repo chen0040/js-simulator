@@ -1,0 +1,99 @@
+<html>
+    <head>
+        <title>Discrete-Event Simulator: Solar System</title>
+        <script src="../src/jssim.js" type="text/javascript"></script>
+    </head>
+    <body>
+        <h2>Discrete-Event Simulator: Solar System <input type="text" id="simTime" value="" /></h2>
+        
+        <p>
+           
+        </p>
+
+        
+        <canvas id="myCanvas" width="800" height="600" style="border:1px solid #000000;">
+        </canvas>
+        
+        <script>
+            (function(){
+                var sun_x = 400;
+                var sun_y = 300;
+                var PLUTO = 9;  // Furthest-out body
+                 // distance from sun in 10^5 km
+                var DISTANCE =[0, 579, 1082, 1496, 2279, 7786, 14335, 28725, 44951, 58700]; 
+
+                // diameters in 10 km
+                var DIAMETER = [139200.0, 487.9, 1210.4, 1275.6, 679.4, 14298.4, 12053.6, 5111.8, 4952.8, 239.0];
+                
+                var scale = 400 / DISTANCE[PLUTO];
+                
+                for(var i=0; i < DISTANCE.length; ++i) {
+                    DISTANCE[i] = scale * DISTANCE[i];
+                    DIAMETER[i] = scale * DIAMETER[i];
+                }
+
+                // period in days 
+                var PERIOD = [1 /* don't care :-) */, 88.0, 224.7, 365.2, 687.0, 4331, 10747, 30589, 59800, 90588];
+                
+                var Body = function(id, velocity, distanceFromSun, space, scheduler) {
+                    jssim.SimEvent.call(this);
+                    this.velocity = velocity; 
+                    this.distanceFromSun = distanceFromSun; 
+                    this.scheduler = scheduler;
+                    this.space = space;
+                    this.id = id;
+                };
+                
+                Body.prototype = Object.create(jssim.SimEvent.prototype);
+                
+                Body.prototype.update = function (deltaTime) {
+                    if (this.distanceFromSun > 0)  // the sun's at 0, and you can't divide by 0
+                    {
+                        var theta = ((this.velocity / this.distanceFromSun) * this.scheduler.current_time)%(2*Math.PI) ;  
+                        this.space.updateAgent(this, 
+                            sun_x + this.distanceFromSun*Math.cos(theta), 
+                            sun_y + this.distanceFromSun*Math.sin(theta));
+                    }
+                };
+                
+                Body.prototype.draw = function(context, pos){
+                      
+                };
+                
+                
+                
+                var scheduler = new jssim.Scheduler();
+                
+                var space = new jssim.Space2D();
+                
+
+                function reset() {
+                    scheduler.reset(); 
+                    space.reset();
+                    
+                    for(var i=0; i<10;i++)
+                    {
+                        var b = new Body(i, (2*Math.PI*DISTANCE[i]) / PERIOD[i], DISTANCE[i], space, scheduler);
+                        space.updateAgent(b, sun_x + DISTANCE[i], sun_y); 
+                        scheduler.scheduleRepeatingIn(b, 1);
+                    }
+                }
+                
+                reset();
+                
+                var canvas = document.getElementById("myCanvas");
+                
+                setInterval(function(){ 
+                    if(scheduler.current_time == 100) {
+                        reset();
+                    }
+                    scheduler.update();                    
+                    space.render(canvas);
+                    
+                    //console.log('current simulation time: ' + scheduler.current_time);
+                    document.getElementById("simTime").value = "Simulation Time: " + scheduler.current_time;
+                }, 100);
+            })();
+        </script>
+    </body>
+</html>
