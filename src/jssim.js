@@ -98,6 +98,106 @@ var jssim = jssim || {};
     
     jss.MinPQ = MinPQ;
     
+    var StackNode = function(value) {
+        this.value = value;
+        this.next = null;
+    };
+    
+    jss.StackNode = StackNode;
+    
+    var Stack = function (){
+        this.N = 0;
+        this.first = null;
+    };
+    
+    Stack.prototype.push = function(item) {
+        var oldFirst = this.first;
+        this.first = new jss.StackNode(item);
+        this.first.next = oldFirst;
+        this.N++;
+    };
+    
+    Stack.prototype.pop = function (item) {
+        var oldFirst = this.first;
+        if(oldFirst == null) {
+            return null;
+        }
+        var item = oldFirst.value;
+        this.first = oldFirst.next;
+        this.N--;
+        return item;
+    };
+    
+    Stack.prototype.clear = function () {
+        this.N = 0;
+        this.first = null;
+    };
+    
+    Stack.prototype.size = function () {
+        return this.N;
+    };
+    
+    Stack.prototype.isEmpty = function () {
+        return this.N == 0;
+    };
+    
+    jss.Stack = Stack;
+    
+    var QueueNode = function (value) {
+        this.value = value;
+        this.next = null;
+    };
+    
+    jss.QueueNode = QueueNode;
+    
+    var Queue = function () {
+        this.first = null;
+        this.last = null;
+        this.N = 0;
+    };
+    
+    Queue.prototype.enqueue = function (item) {
+        var oldLast = this.last;
+        this.last = new jss.QueueNode(item);
+        if(oldLast != null) {
+            oldLast.next = this.last;
+        }
+        if(this.first == null) {
+            this.first = this.last;
+        }
+        this.N++;
+    };
+    
+    Queue.prototype.dequeue = function () {
+        var oldFirst = this.first;
+        if(oldFirst == null) {
+            return null;
+        }
+        var item = oldFirst.value;
+        this.first = oldFirst.next;
+        if(this.first == null) {
+            this.last = null;
+        }
+        this.N--;
+        return item;
+    };
+    
+    Queue.prototype.clear = function () {
+        this.first = null;
+        this.last = null;
+        this.N = 0;
+    };
+    
+    Queue.prototype.isEmpty = function () {
+        return this.N == 0;
+    };
+    
+    Queue.prototype.size = function() {
+        return this.N;
+    };
+    
+    jss.Queue = Queue;
+    
     var SimEvent = function (rank){
         this.time = 0;
         if(rank){
@@ -398,105 +498,7 @@ var jssim = jssim || {};
     
     jss.Space2D = Space2D;
     
-    var StackNode = function(value) {
-        this.value = value;
-        this.next = null;
-    };
     
-    jss.StackNode = StackNode;
-    
-    var Stack = function (){
-        this.N = 0;
-        this.first = null;
-    };
-    
-    Stack.prototype.push = function(item) {
-        var oldFirst = this.first;
-        this.first = new jss.StackNode(item);
-        this.first.next = oldFirst;
-        this.N++;
-    };
-    
-    Stack.prototype.pop = function (item) {
-        var oldFirst = this.first;
-        if(oldFirst == null) {
-            return null;
-        }
-        var item = oldFirst.value;
-        this.first = oldFirst.next;
-        this.N--;
-        return item;
-    };
-    
-    Stack.prototype.clear = function () {
-        this.N = 0;
-        this.first = null;
-    };
-    
-    Stack.prototype.size = function () {
-        return this.N;
-    };
-    
-    Stack.prototype.isEmpty = function () {
-        return this.N == 0;
-    };
-    
-    jss.Stack = Stack;
-    
-    var QueueNode = function (value) {
-        this.value = value;
-        this.next = null;
-    };
-    
-    jss.QueueNode = QueueNode;
-    
-    var Queue = function () {
-        this.first = null;
-        this.last = null;
-        this.N = 0;
-    };
-    
-    Queue.prototype.enqueue = function (item) {
-        var oldLast = this.last;
-        this.last = new jss.QueueNode(item);
-        if(oldLast != null) {
-            oldLast.next = this.last;
-        }
-        if(this.first == null) {
-            this.first = this.last;
-        }
-        this.N++;
-    };
-    
-    Queue.prototype.dequeue = function () {
-        var oldFirst = this.first;
-        if(oldFirst == null) {
-            return null;
-        }
-        var item = oldFirst.value;
-        this.first = oldFirst.next;
-        if(this.first == null) {
-            this.last = null;
-        }
-        this.N--;
-        return item;
-    };
-    
-    Queue.prototype.clear = function () {
-        this.first = null;
-        this.last = null;
-        this.N = 0;
-    };
-    
-    Queue.prototype.isEmpty = function () {
-        return this.N == 0;
-    };
-    
-    Queue.prototype.size = function() {
-        return this.N;
-    };
-    
-    jss.Queue = Queue;
     
     var Grid = function (width, height) {
         this.width = width;
