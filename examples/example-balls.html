@@ -153,29 +153,13 @@
                     
                     context.font = "12 Arial";
                     context.fillText("" + this.id,pos.x, pos.y);
-                    
-                    var me = this.space.getLocation(this.id);
-                    var adj_me = this.bands.adj(this.id);
-                    for(var i=0; i < adj_me.length; ++i) {
-                        var e = adj_me[i];
-                        var band = e.info;
-                        var other = this.space.getLocation(e.other(this.id));
-                        
-                        var distance = me.distance(other);
-                        if(distance > band.laxDistance) {
-                            context.strokeStyle = "#cccccc";
-                            context.beginPath();
-                            context.moveTo(me.x, worldHeight - me.y); // y coordindate is inverted
-                            context.lineTo(other.x, worldHeight - other.y); // y coordindate is inverted
-                            context.stroke();
-                        }
-                    }
                 };
                 
                 var scheduler = new jssim.Scheduler();
                 
                 var space = new jssim.Space2D();
                 var bands = new jssim.Network(numBalls);
+                space.network = bands;
                 var s = [];
                 
 

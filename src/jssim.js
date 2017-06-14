@@ -391,12 +391,16 @@ var jssim = jssim || {};
         this.lines = [];
         this.cellWidth = 1;
         this.cellHeight = 1;
+        this.network = null;
     };
     
     Space2D.prototype.reset = function () {
         this.locations = [];
         this.agents = [];
         this.lines = [];
+        if(this.network != null) {
+            this.network.reset();
+        }
     };
     
     Space2D.prototype.getLocation = function (agentId) {
@@ -431,6 +435,34 @@ var jssim = jssim || {};
         
         var context = canvas.getContext("2d");
         context.clearRect(0, 0, canvas.width, canvas.height);
+        
+        
+        
+        if(this.network != null) {
+            context.strokeStyle = this.network.lineColor;
+            for(var v = 0; v < this.network.V; ++v) {
+                var adj_v = this.network.adj(v);
+                var me = this.locations[v];
+                var x1 = me.x;
+                var y1 = me.y;
+                for(var i=0; i < adj_v.length; ++i) {
+                    var e = adj_v[i];
+                    if(e.either() == v) {
+                        var w = e.other(v);
+                        var him = this.locations[w];
+                        
+                        var x2 = him.x;
+                        var y2 = him.y;
+                        console.log(x1 + ', ' + y1 + ' == ' + x0 + y0);
+                        x0 = x2;
+                        y0 = y2;
+                        context.moveTo(x1 * this.cellWidth, canvas.height - y1 * this.cellHeight);
+                        context.lineTo(x2 * this.cellWidth, canvas.height - y2 * this.cellHeight);
+                        context.stroke();
+                    }
+                }
+            }
+        }
         
         context.strokeStyle = "#0000FF";
         
@@ -722,6 +754,7 @@ var jssim = jssim || {};
         for(var v=0; v < V; ++v) {
             this.adjList.push([]);
         }
+        this.lineColor = "#cccccc";
     };
     
     Network.prototype.adj = function(v) {
