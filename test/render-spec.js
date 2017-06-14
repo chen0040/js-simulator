@@ -56,7 +56,17 @@ describe('Render coverage test', function(){
        
        space.drawLine(0, 0, 10, 10);
        
+       var network = new jssim.Network(10);
+       space.network = network;
+       
+       network.addEdge(new jssim.Edge(0, 2));
+       
+       
        var agent = new jssim.SimEvent();
+       agent.id = 0;
+       space.updateAgent(agent, 10, 10);
+       
+       agent = new jssim.SimEvent();
        agent.id = 2;
        space.updateAgent(agent, 10, 10);
        

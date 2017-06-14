@@ -442,6 +442,7 @@ var jssim = jssim || {};
             context.strokeStyle = this.network.lineColor;
             for(var v = 0; v < this.network.V; ++v) {
                 var adj_v = this.network.adj(v);
+                if(adj_v.length == 0) continue;
                 var me = this.locations[v];
                 var x1 = me.x;
                 var y1 = me.y;
