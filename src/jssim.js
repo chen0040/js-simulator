@@ -855,11 +855,8 @@ var jssim = jssim || {};
             var recipient_inbox = this.inbox[recipient];
             if(recipient_inbox.size() > 10) {
                 var sender_msg = recipient_inbox.min();
-                while(sender_msg != null && sender_msg.time <= this.scheduler.current_time - 5) {
+                while(sender_msg != null && sender_msg.time < this.scheduler.current_time) {
                     recipient_inbox.delMin();
-                    if(recipient_inbox.isEmpty()) {
-                        break;
-                    }
                     if(recipient_inbox.isEmpty()) {
                         break;
                     }
@@ -881,7 +878,12 @@ var jssim = jssim || {};
             recipient_inbox = this.inbox[recipient];
         } else {
             recipient_inbox = new jss.MinPQ(function(m1,m2){
-               return m1.rank - m2.rank; 
+                var diff = m1.time - m2.time;
+                if(diff == 0) {
+                    return m1.rank - m2.rank; 
+                } else {
+                    return diff;
+                }
             });
             this.inbox[recipient] = recipient_inbox;
         }
@@ -904,7 +906,12 @@ var jssim = jssim || {};
             recipient_inbox = this.inbox[recipient];
         } else {
             recipient_inbox = new jss.MinPQ(function(m1,m2){
-               return m1.rank - m2.rank; 
+                var diff = m1.time - m2.time;
+                if(diff == 0) {
+                    return m1.rank - m2.rank; 
+                } else {
+                    return diff;
+                }
             });
             this.inbox[recipient] = recipient_inbox;
         }
