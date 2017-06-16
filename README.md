@@ -27,6 +27,7 @@ The following HTML demo is available:
 * Virus [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-virus.html)
 * (Spring) Balls [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-balls.html)
 * Solar System [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-solar.html)
+* Near Beer Game [HTML DEMO](https://rawgit.com/chen0040/js-simulator/master/examples/example-near-beer-game.html)
 
 More demo and HTML GUI supports will be added in the subsequent releases.
 
