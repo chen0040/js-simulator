@@ -73,6 +73,9 @@ describe('Render coverage test', function(){
        var canvas = new Canvas();
        space.render(canvas);
        
+       agent = new jssim.SimEvent();
+       console.log(agent.guid());
+       
        grid.render(canvas);
        
    }) ;
