@@ -78,9 +78,8 @@
                     this.canvas.clearLines();
                 };
 
-                var Turtle = function(scheduler, pen) {
+                var Turtle = function(pen) {
                     jssim.SimEvent.call(this);
-                    this.scheduler = scheduler;
                     this.pen = pen;
                     this.angle = 25;
                     this.stride = 1;
@@ -128,7 +127,7 @@
 
                 var scheduler = new jssim.Scheduler();
                 var pen = new Pen(10, 0, 60);
-                var turtle = new Turtle(scheduler, pen);
+                var turtle = new Turtle(pen);
                 turtle.stride = 5;
 
                 function reset() {

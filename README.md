@@ -52,6 +52,27 @@ var evt = new jssim.SimEvent(rank);
 evt.id = 20; 
 evt.update = function(deltaTime) {
     console.log('event [' + this.id + '] with rank ' + this.rank + ' is fired at time ' + this.time);
+    
+    // the code below allows the evt to send message to another agent (i.e., the agent referred by receiver variable)
+    /*
+    var receiver_id = receiver.guid()
+    this.sendMsg(receiver_id, {
+        content: "Hello"
+    });
+    */
+    
+    // the code below allows the evt to process messages sent from another agent
+    /*
+    var messages = this.readInbox();
+    for(var i = 0; i < messages.length; ++i){
+        var msg = messages[i];
+        var sender_id = msg.sender;
+        var recipient_id = msg.recipient; // should equal to this.guid()
+        var time = msg.time;
+        var rank = msg.rank; // the messages[0] contains the highest ranked message and last messages contains lowest ranked
+        var content = msg.content; // for example the "Hello" text from the sendMsg code above
+    }
+    */
 };
 
 var time_to_fire = 10; // fire this event at time = 10

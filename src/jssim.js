@@ -14,6 +14,16 @@ var jssim = jssim || {};
             jss.exchange(a, i, j);
         }
     };
+    
+    jss.s4 = function () {
+        return Math.floor((1 + Math.random()) * 0x10000)
+          .toString(16)
+          .substring(1);
+    }
+    
+    jss.guid = function () {
+        return jss.s4() + jss.s4() + '-' + jss.s4() + '-' + jss.s4() + '-' + jss.s4() + '-' + jss.s4() + jss.s4() + jss.s4();
+    };
 	
     var MinPQ = function (compare) {
         if(!compare){
@@ -207,6 +217,25 @@ var jssim = jssim || {};
         }
     };
     
+    SimEvent.prototype.guid = function () {
+        if(this.id) {
+            return this.id;
+        } else {
+            this.id = jss.guid();
+            return this.id;
+        }
+    };
+    
+    SimEvent.prototype.sendMsg = function (recipient, message) {
+        this.scheduler.messenger.sendMsg(this.guid(), recipient, message);
+    };
+    
+    SimEvent.prototype.readInBox = function () {
+        return this.scheduler.messenger.readInBox(this.guid());
+    };
+    
+    jss.SimEvent = SimEvent;
+    
     var Scheduler = function () {
         this.pq = new jss.MinPQ(function(evt1, evt2){
             var time_diff = evt1.time - evt2.time;
@@ -218,6 +247,7 @@ var jssim = jssim || {};
         });  
         this.current_time = null;
         this.current_rank = null;
+        this.messenger = new jss.Messenger(this);
     };
     
     Scheduler.prototype.update = function () {
@@ -236,6 +266,8 @@ var jssim = jssim || {};
             
             this.update_mini();
         }  
+        
+        this.messenger.update(0);
     };
     
     Scheduler.prototype.update_mini = function () {
@@ -263,10 +295,16 @@ var jssim = jssim || {};
         
         jss.shuffle(events);
         
+        var old_time = this.current_time;
+        if(events.length > 0){
+            this.current_time = current_time;
+            this.current_rank = current_rank;
+        } 
+        
         for(var i = 0; i < events.length; ++i){
             var deltaTime = 0;
             if(this.current_time != null) {
-                deltaTime = current_time - this.current_time;
+                deltaTime = current_time - old_time;
             } else {
                 deltaTime = current_time;
             }
@@ -277,10 +315,7 @@ var jssim = jssim || {};
             }
         }
         
-        if(events.length > 0){
-            this.current_time = current_time;
-            this.current_rank = current_rank;
-        } 
+        
         
         for(var i = 0; i < events.length; ++i) {
             if(events[i].repeatInterval) {
@@ -293,6 +328,9 @@ var jssim = jssim || {};
     
     Scheduler.prototype.schedule = function (evt, time) {
         evt.time = time;
+        if(!evt.scheduler) {
+            evt.scheduler = this;
+        }
         this.pq.enqueue(evt);  
     };
     
@@ -306,6 +344,9 @@ var jssim = jssim || {};
         if(this.current_time == null) {
             start_time = 0;
         }
+        if(!evt.scheduler) {
+            evt.scheduler = this;
+        }
         evt.time = start_time + deltaTime;
         this.pq.enqueue(evt);
     };
@@ -316,6 +357,9 @@ var jssim = jssim || {};
         if(this.current_time == null) {
             start_time = 0;
         }
+        if(!evt.scheduler) {
+            evt.scheduler = this;
+        }
         this.scheduleRepeatingAt(evt, start_time+deltaTime, deltaTime);
     };
     
@@ -323,6 +367,9 @@ var jssim = jssim || {};
     Scheduler.prototype.scheduleRepeatingAt = function (evt, startTime, deltaTime) {
         evt.time = startTime;
         evt.repeatInterval = deltaTime;
+        if(!evt.scheduler) {
+            evt.scheduler = this;
+        }
         this.pq.enqueue(evt);
     };
     
@@ -330,10 +377,9 @@ var jssim = jssim || {};
         this.current_rank = null;
         this.current_time = null;
         this.pq.clear();
+        this.messenger.reset();
     };
     
-    
-    jss.SimEvent = SimEvent;
     jss.Scheduler = Scheduler;
     
     var Vector2D = function(x, y) {
@@ -796,6 +842,86 @@ var jssim = jssim || {};
     
     jss.Network = Network;
     
+    var Messenger = function(scheduler) {
+        jss.SimEvent(this, -1000000000);
+        this.inbox = {};
+        this.scheduler = scheduler;
+    };
+    
+    Messenger.prototype = Object.create(jss.SimEvent.prototype);
+    
+    Messenger.prototype.update = function(deltaTime) {
+        for(recipient in this.inbox){
+            var recipient_inbox = this.inbox[recipient];
+            if(recipient_inbox.size() > 10) {
+                var sender_msg = recipient_inbox.min();
+                while(sender_msg != null && sender_msg.time <= this.scheduler.current_time - 5) {
+                    recipient_inbox.delMin();
+                    if(recipient_inbox.isEmpty()) {
+                        break;
+                    }
+                    if(recipient_inbox.isEmpty()) {
+                        break;
+                    }
+                    sender_msg = recipient_inbox.min();
+                }
+            }
+        }  
+    };
+    
+    Messenger.prototype.sendMsg = function(sender, recipient, message) {
+        if(!message.recipient){
+            message.recipient = recipient;
+        }
+        if(!message.sender) {
+            message.sender = sender;
+        }
+        var recipient_inbox = null;
+        if(recipient in this.inbox) {
+            recipient_inbox = this.inbox[recipient];
+        } else {
+            recipient_inbox = new jss.MinPQ(function(m1,m2){
+               return m1.rank - m2.rank; 
+            });
+            this.inbox[recipient] = recipient_inbox;
+        }
+        if(!message.rank) {
+            message.rank = 1;
+        }
+        if(!message.time) {
+            message.time = this.scheduler.current_time;
+        }
+        recipient_inbox.enqueue(message);
+    };
+    
+    Messenger.prototype.reset = function() {
+        this.inbox = [];
+    };
+    
+    Messenger.prototype.readInBox = function (recipient) {
+        var recipient_inbox = null;
+        if(recipient in this.inbox) {
+            recipient_inbox = this.inbox[recipient];
+        } else {
+            recipient_inbox = new jss.MinPQ(function(m1,m2){
+               return m1.rank - m2.rank; 
+            });
+            this.inbox[recipient] = recipient_inbox;
+        }
+        var sender_msg = recipient_inbox.min();
+        var result = [];
+        while(sender_msg != null && sender_msg.time <= this.scheduler.current_time) {
+            recipient_inbox.delMin();
+            result.push(sender_msg);
+            if(recipient_inbox.isEmpty()) {
+                break;
+            }
+            sender_msg = recipient_inbox.min();
+        }
+        return result;
+    };
+    
+    jss.Messenger = Messenger;
     
 
 })(jssim);

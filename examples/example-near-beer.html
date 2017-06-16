@@ -1,0 +1,354 @@
+<html>
+    <head>
+        <title>Discrete-Event Simulator: Near Beer Game</title>
+        
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular.js" type="text/javascript"></script>
+        
+        <script src="../src/jssim.js" type="text/javascript"></script>
+    </head>
+    <body>
+        
+        
+        <div class="container-fluid" ng-app="demo" ng-controller="demoController">
+            <div class="row">
+                <div class="col-sm-12">
+                    <h2>Discrete-Event Simulator: Near Beer Game <input type="text" id="simTime" value="" /></h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="panel panel-default">
+
+                      <div class="panel-heading">Customer</div>
+                          <div class="panel-body">
+                            <table class="table table-hover table-stripped">
+                                <thead>
+                                    <tr>
+                                        <th>Week</th>
+                                        <th>Ordering</th>
+                                        <th>Received</th>
+                                        <th>Unfulfilled</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat='record in customer.activities track by $index'>
+                                        <td>{{record.weeks}}</td>
+                                        <td>{{record.order}}</td>
+                                        <td>{{record.received}}</td>
+                                        <td>{{record.totalOrder}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-sm-5">
+                    <div class="panel panel-default">
+
+                        <div class="panel-heading">Near Beer</div>
+                          <div class="panel-body">
+                            <table class="table table-hover table-stripped">
+                                <thead>
+                                    <tr>
+                                        <th>Week</th>
+                                        <th>Brewed Beers</th>
+                                        <th>Inventory Stock</th>
+                                        <th>Ordering</th>
+                                        <th>Backlog</th>
+                                        <th>Shipment</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat='record in agent.activities track by $index'>
+                                        <td>{{record.weeks}}</td>
+                                        <td>{{record.beers}}</td>
+                                        <td>{{record.inventoryOnHand}}</td>
+                                        <td>{{record.newRawMaterialOrder}}</td>
+                                        <td>{{record.backlog}}</td>
+                                        <td>{{record.shipment}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                    
+                
+                
+                <div class="col-sm-3">
+                    <div class="panel panel-default">
+
+                      <div class="panel-heading">Supplier</div>
+                          <div class="panel-body">
+                            <table class="table table-hover table-stripped">
+                                <thead>
+                                    <tr>
+                                        <th>Week</th>
+                                        <th>Produce</th>
+                                        <th>Shipment</th>
+                                        <th>Stocks</th>
+                                        <th>Total Shipment</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat='record in supplier.activities track by $index'>
+                                        <td>{{record.weeks}}</td>
+                                        <td>{{record.produced}}</td>
+                                        <td>{{record.shipment}}</td>
+                                        <td>{{record.inventoryOnHand}}</td>
+                                        <td>{{record.totalShipment}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+
+            </div>
+        </div>
+        
+        <script>
+            (function(){
+                var controller = function($scope, $interval) {
+                    var supplier_id = 'supplier';
+                    var customer_id = 'customer';
+                    var agent_id = 'agent';
+                    
+
+                    var Customer = function() {
+                        jssim.SimEvent.call(this, 1);
+                        this.id = customer_id;
+                        this.activities = [];
+                        this.cumulativeUnfulfilledOrders = 0;
+                    };
+
+                    Customer.prototype = Object.create(jssim.SimEvent.prototype);
+
+                    Customer.prototype.update = function (delta) {
+                        var inbox = this.readInBox();
+                        
+                        var arrived_goods = 0;
+                        for(var i=0; i < inbox.length; ++i) {
+                            var msg = inbox[i];
+                            if(msg.type == 'newShipment') {
+                                arrived_goods += msg.quantity;
+                            } 
+                        }
+                        
+                        if(arrived_goods > 0) {
+                            this.cumulativeUnfulfilledOrders -= arrived_goods;
+                            this.sendMsg(agent_id, {
+                                type: 'newGDN',
+                                quantity: arrived_goods
+                            });
+                        }
+                        
+                        var order = this.makeOrder();
+                        this.cumulativeUnfulfilledOrders += order;
+                        
+                        var record = {};
+                        record.weeks = this.time;
+                        record.order = order;
+                        record.totalOrder = this.cumulativeUnfulfilledOrders;
+                        record.received = arrived_goods;
+                        
+                        this.activities.push(record);
+                    };
+
+                    Customer.prototype.makeOrder = function () {
+                        var weeks = this.time;
+                        var order = 15;
+                        if (weeks <= 3)
+                        {
+                            order = 10;
+                        }
+                        this.sendMsg(agent_id, {
+                            quantity: order,
+                            type: 'newOrder'
+                        });
+                        return order;
+                    };
+
+
+
+                    var NearBeerAgent = function() {
+                        jssim.SimEvent.call(this, 1);
+                        this.id = agent_id;
+                        this.inventoryOnHand = 25;
+                        this.outgoingInventory = 0;
+                        this.backlog = 0;
+                        this.activities = [];
+                    };
+                    
+                    NearBeerAgent.prototype = Object.create(jssim.SimEvent.prototype);
+                    NearBeerAgent.prototype.update = function (deltaTime) {
+                       
+                        
+                        var arrived_raw_materials = 0;
+                        var inbox = this.readInBox();
+                        for(var i=0; i < inbox.length; ++i) {
+                            var msg = inbox[i];
+                            if(msg.type == 'newShipment') {
+                                arrived_raw_materials += msg.quantity;
+                            } else if(msg.type == 'newOrder') {
+                                this.backlog += msg.quantity;
+                            } else if(msg.type == 'newGDN') { // goods delivery note from customer
+                                this.backlog -= msg.quantity; 
+                                this.outgoingInventory -= msg.quantity;
+                            }
+                        }
+                        
+                        var beers = this.brewBeers(arrived_raw_materials);
+                        
+                        this.inventoryOnHand += beers;
+                        
+                        var shipment = this.makeShipment();
+                        var order = this.makeOrder();
+                        
+                        var record = {};
+                        record.newRawMaterialOrder = order;
+                        record.backlog = this.backlog;
+                        record.beers = beers;
+                        record.inventoryOnHand = this.inventoryOnHand;
+                        record.weeks = this.time;
+                        record.shipment = shipment;
+                        this.activities.push(record);
+                    };
+                    
+                    NearBeerAgent.prototype.makeShipment = function () {
+                        var shipment = Math.min(this.backlog - this.outgoingInventory, this.inventoryOnHand);
+                        if(shipment > 0) {
+                            this.sendMsg(customer_id, {
+                               type: 'newShipment',
+                               quantity: shipment
+                            });
+                            this.inventoryOnHand -= shipment;
+                            this.outgoingInventory += shipment;
+
+                        }
+                        return shipment;
+                    };
+                    
+                    NearBeerAgent.prototype.makeOrder = function () {
+                        var weeks = this.time;
+                        var value = 0;
+                        if (weeks <= 4)
+                        {
+                            value = 10;
+                        }
+                        else if ((weeks > 4) && (weeks <= 7))
+                        {
+                            value = 25;
+                        }
+                        else
+                        {
+                            value = 15;
+                        }
+                        
+                        this.sendMsg(supplier_id, {
+                            quantity: value,
+                            type: 'newOrder'
+                        });
+                        
+                        return value;
+                    };
+                    
+                    NearBeerAgent.prototype.brewBeers = function (rawMaterials) {
+                        return Math.floor(rawMaterials * (0.8 + Math.random() * 0.1 - 0.05));  
+                    };
+                    
+                    var Supplier = function () {
+                        jssim.SimEvent.call(this, 2); // higher rank than agent and customer so that it executes first
+                        this.id = supplier_id;
+                        this.activities = [];
+                        this.totalShipment = 0;
+                        this.inventoryOnHand = 0;
+                    };
+                    
+                    Supplier.prototype = Object.create(jssim.SimEvent.prototype);
+
+                    Supplier.prototype.update = function (delta) {
+                        var messages = this.readInBox();
+                        var order = 0;
+                        for(var i=0; i < messages.length; ++i) {
+                            var msg = messages[i];
+                            if(msg.type == 'newOrder') {
+                                order += msg.quantity;
+                            }
+                        }
+                        
+                        var produced = this.produce(order);
+                        var shipment = this.makeShipment(order);
+                        this.totalShipment += shipment;
+                       
+                        var record = {};
+                        record.produced = produced;
+                        record.inventoryOnHand = this.inventoryOnHand;
+                        record.shipment = shipment;
+                        record.totalShipment = this.totalShipment;
+                        record.weeks = this.time;
+                        this.activities.push(record);
+                    };
+                    
+                    Supplier.prototype.produce = function(order) {
+                        var produced = Math.max(10, order);  
+                        if(Math.random() < 0.5) {
+                            produced -= 5;
+                        }
+                        this.inventoryOnHand += produced;
+                        return produced;
+                    }
+                    
+                    Supplier.prototype.makeShipment = function (order) {
+                        var shipment = Math.max(0, this.inventoryOnHand - order)
+                        if(shipment > 0){
+                            this.sendMsg(agent_id, {
+                                quantity: shipment,
+                                type: 'newShipment'
+                            });
+                            this.inventoryOnHand -= shipment;
+                        }
+                        return shipment;
+                    };
+
+                    var scheduler = new jssim.Scheduler();
+
+                    function reset() {
+                        scheduler.reset(); 
+                        $scope.customer = new Customer();
+                        $scope.supplier = new Supplier();
+                        $scope.agent = new NearBeerAgent();
+                        
+                        scheduler.scheduleRepeatingIn($scope.customer, 1);
+                        scheduler.scheduleRepeatingIn($scope.supplier, 1);
+                        scheduler.scheduleRepeatingIn($scope.agent, 1);
+                    }
+
+                    reset();
+
+
+
+
+                    $interval(function(){ 
+                        if(scheduler.current_time == 10) {
+                            reset();
+                        }
+                        scheduler.update();
+                        console.log('current simulation time: ' + scheduler.current_time);
+                        document.getElementById("simTime").value = "Simulation Time: " + scheduler.current_time;
+                    }, 1000);
+                };
+                var app = angular.module('demo', []);
+                app.controller('demoController', ['$scope', '$interval', controller]);
+            })();
+        </script>
+    </body>
+</html>
