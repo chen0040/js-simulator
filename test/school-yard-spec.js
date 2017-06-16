@@ -75,6 +75,7 @@ describe ('School Yard Simulation', function () {
        var network = new jssim.Network(30);
        yard.width = 50;
        yard.height = 50;
+       yard.network = network;
        
        scheduler.reset();
        yard.reset();

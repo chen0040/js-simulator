@@ -43,6 +43,8 @@ describe('Discrete Event Scheduler', function(){
            return new child_event(_rank);
        })(4), 2);
        
+       scheduler.scheduleRepeatingAt(new jssim.SimEvent(), 1, 2);
+       
        var prev_time = 0;
        var prev_rank = 5;
        while(scheduler.hasEvents()) {
