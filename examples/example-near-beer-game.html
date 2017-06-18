@@ -113,6 +113,60 @@
                 
 
             </div>
+            
+            <div class="row">
+                <div class="md-col-12">
+                    <table class="table table-hovered table-striped">
+                        <thead>
+                            <tr>
+                                <td>Customer Inbox</td>
+                                <td>Near Bear Inbox</td>
+                                <td>Suppler Inbox</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <table class="table table-hovered">
+                                        <thead><th>Sender</th><th>Message</th><th>Detail</th></thead>
+                                        <tbody>
+                                            <tr ng-repeat="msg in customer.inbox">
+                                                <td>{{msg.sender}}</td>
+                                                <td>{{msg.type}}</td>
+                                                <td>Quantity is {{msg.quantity}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td>
+                                    <table class="table table-hovered">
+                                        <thead><th>Sender</th><th>Message</th><th>Detail</th></thead>
+                                        <tbody>
+                                            <tr ng-repeat="msg in agent.inbox">
+                                                <td>{{msg.sender}}</td>
+                                                <td>{{msg.type}}</td>
+                                                <td>Quantity is {{msg.quantity}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td>
+                                    <table class="table table-hovered">
+                                        <thead><th>Sender</th><th>Message</th><th>Detail</th></thead>
+                                        <tbody>
+                                            <tr ng-repeat="msg in supplier.inbox">
+                                                <td>{{msg.sender}}</td>
+                                                <td>{{msg.type}}</td>
+                                                <td>Quantity is {{msg.quantity}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
         
         <script>
@@ -128,16 +182,17 @@
                         this.id = customer_id;
                         this.activities = [];
                         this.cumulativeUnfulfilledOrders = 0;
+                        this.inbox = [];
                     };
 
                     Customer.prototype = Object.create(jssim.SimEvent.prototype);
 
                     Customer.prototype.update = function (delta) {
-                        var inbox = this.readInBox();
+                        this.inbox = this.readInBox();
                         
                         var arrived_goods = 0;
-                        for(var i=0; i < inbox.length; ++i) {
-                            var msg = inbox[i];
+                        for(var i=0; i < this.inbox.length; ++i) {
+                            var msg = this.inbox[i];
                             if(msg.type == 'newShipment') {
                                 arrived_goods += msg.quantity;
                             } 
@@ -186,6 +241,7 @@
                         this.outgoingInventory = 0;
                         this.backlog = 0;
                         this.activities = [];
+                        this.inbox = [];
                     };
                     
                     NearBeerAgent.prototype = Object.create(jssim.SimEvent.prototype);
@@ -193,9 +249,9 @@
                        
                         
                         var arrived_raw_materials = 0;
-                        var inbox = this.readInBox();
-                        for(var i=0; i < inbox.length; ++i) {
-                            var msg = inbox[i];
+                        this.inbox = this.readInBox();
+                        for(var i=0; i < this.inbox.length; ++i) {
+                            var msg = this.inbox[i];
                             if(msg.type == 'newShipment') {
                                 arrived_raw_materials += msg.quantity;
                             } else if(msg.type == 'newOrder') {
@@ -271,15 +327,16 @@
                         this.activities = [];
                         this.totalShipment = 0;
                         this.inventoryOnHand = 0;
+                        this.inbox = [];
                     };
                     
                     Supplier.prototype = Object.create(jssim.SimEvent.prototype);
 
                     Supplier.prototype.update = function (delta) {
-                        var messages = this.readInBox();
+                        this.inbox = this.readInBox();
                         var order = 0;
-                        for(var i=0; i < messages.length; ++i) {
-                            var msg = messages[i];
+                        for(var i=0; i < this.inbox.length; ++i) {
+                            var msg = this.inbox[i];
                             if(msg.type == 'newOrder') {
                                 order += msg.quantity;
                             }
