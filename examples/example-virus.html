@@ -33,6 +33,15 @@
                 var NUM_GOODS = 4;
                 var NUM_EVILS = 4;
                 
+                var healthy_icon = new Image();
+                healthy_icon.src = "normal.png";
+                var infected_icon = new Image();
+                infected_icon.src = "infected.png";
+                var good_icon = new Image();
+                good_icon.src = "good.png";
+                var evil_icon = new Image();
+                evil_icon.src = "virus.png";
+                
                 var Evil = function(id, loc, space) {
                     jssim.SimEvent.call(this);
                     this.id = id;
@@ -114,6 +123,10 @@
                         this.agentLocation = new jssim.Vector2D(this.agentLocation.x + dx, this.agentLocation.y + dy);
                         space.updateAgent(this, this.agentLocation.x, this.agentLocation.y);
                     }
+                };
+                
+                Evil.prototype.draw = function(context, pos) {
+                    context.drawImage(evil_icon, pos.x, pos.y);    
                 };
                 
                 var Good = function(id, loc, space) {
@@ -199,6 +212,10 @@
                     }
                 };
                 
+                Good.prototype.draw = function(context, pos) {
+                    context.drawImage(good_icon, pos.x, pos.y);  
+                };
+                
                 var Human = function(id, loc, space) {
                     jssim.SimEvent.call(this);
                     this.id = id;
@@ -262,6 +279,14 @@
                         this.agentLocation = new jssim.Vector2D(this.agentLocation.x + dx, this.agentLocation.y + dy);
                         this.space.updateAgent(this, this.agentLocation.x, this.agentLocation.y);
                     }  
+                };
+                
+                Human.prototype.draw = function(context, pos) {
+                    if(this.infected) {
+                        context.drawImage(infected_icon, pos.x, pos.y);
+                    }  else {
+                        context.drawImage(healthy_icon, pos.x, pos.y);
+                    }
                 };
                 
                 
